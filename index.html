@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Buscador Multimotor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 300px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Buscador Multimotor</h1>
+  <input type="text" id="query" placeholder="Escribe tu búsqueda...">
+  <div>
+    <button onclick="buscar('google')">Google</button>
+    <button onclick="buscar('bing')">Bing</button>
+    <button onclick="buscar('duckduckgo')">DuckDuckGo</button>
+    <button onclick="buscar('yahoo')">Yahoo</button>
+    <button onclick="buscar('brave')">Brave</button>
+    <button onclick="buscar('startpage')">Startpage</button>
+    <button onclick="buscar('ecosia')">Ecosia</button>
+    <button onclick="buscar('qwant')">Qwant</button>
+    <button onclick="buscar('yandex')">Yandex</button>
+  </div>
+
+  <script>
+    function buscar(motor) {
+      const query = document.getElementById('query').value;
+      if (!query.trim()) return alert("Escribe algo para buscar");
+      let url = "";
+
+      switch(motor) {
+        case 'google':
+          url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbs=sbd:1`; // ordenar por fecha
+          break;
+        case 'bing':
+          url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&qft=sortbydate%3d%221%22`; // ordenar por fecha
+          break;
+        case 'duckduckgo':
+          url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}&ia=web`; // sin orden por fecha directa
+          break;
+        case 'yahoo':
+          url = `https://search.yahoo.com/search?p=${encodeURIComponent(query)}`;
+          break;
+        case 'brave':
+          url = `https://search.brave.com/search?q=${encodeURIComponent(query)}&sort=date`; // ordenar por fecha
+          break;
+        case 'startpage':
+          url = `https://www.startpage.com/do/dsearch?query=${encodeURIComponent(query)}&sort=date`; // ordenar por fecha
+          break;
+        case 'ecosia':
+          url = `https://www.ecosia.org/search?q=${encodeURIComponent(query)}`; // no permite orden por fecha
+          break;
+        case 'qwant':
+          url = `https://www.qwant.com/?q=${encodeURIComponent(query)}&t=web&sort=latest`; // ordenar por fecha
+          break;
+        case 'yandex':
+          url = `https://yandex.com/search/?text=${encodeURIComponent(query)}&how=tm`; // ordenar por fecha
+          break;
+      }
+
+      window.open(url, '_blank');
+    }
+  </script>
+</body>
+</html>

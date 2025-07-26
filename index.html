@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buscador Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Usar Google Fonts para mejor rendimiento y apariencia -->
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --color-bg: #0f0f0f;
@@ -11,6 +15,9 @@
       --color-btn: #1a1a1a;
       --color-hover: #00acc1;
       --color-text: #f0f0f0;
+      --input-bg: #1e1e1e;
+      --input-focus: #222a2a;
+      --shadow: 0 2px 12px 0 rgba(0,188,212,0.10);
     }
 
     * {
@@ -22,65 +29,104 @@
     body {
       background-color: var(--color-bg);
       color: var(--color-text);
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       padding: 40px 20px;
       min-height: 100vh;
+      transition: background-color 0.2s;
     }
 
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 30px;
+      font-size: 2.7rem;
+      margin-bottom: 28px;
       color: var(--color-accent);
+      letter-spacing: 1px;
+      text-shadow: var(--shadow);
+      font-weight: 700;
     }
 
     .search-container {
       width: 100%;
-      max-width: 600px;
+      max-width: 500px;
+      background: rgba(30,30,30,0.85);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 32px 24px 20px 24px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 22px;
       align-items: center;
+    }
+
+    label {
+      display: block;
+      width: 100%;
+      font-size: 1.08rem;
+      margin-bottom: 7px;
+      color: var(--color-accent);
+      font-weight: 500;
+      letter-spacing: .5px;
     }
 
     input[type="text"] {
       width: 100%;
-      padding: 15px;
-      font-size: 1.1rem;
+      padding: 15px 18px;
+      font-size: 1.13rem;
       border: none;
       border-radius: 8px;
-      background: #1e1e1e;
+      background: var(--input-bg);
       color: var(--color-text);
+      transition: background 0.2s;
+      box-shadow: 0 1px 6px 0 rgba(0,188,212,0.07);
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      background: var(--input-focus);
+      border: 1.5px solid var(--color-accent);
     }
 
     .button-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 13px;
       width: 100%;
+      margin-top: 10px;
     }
 
     button {
-      padding: 12px;
-      font-size: 1rem;
+      padding: 12px 0;
+      font-size: 1.02rem;
       background-color: var(--color-btn);
       color: var(--color-text);
       border: 1px solid var(--color-accent);
       border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.2s, box-shadow 0.2s;
+      font-weight: 500;
+      box-shadow: 0 1px 6px 0 rgba(0,188,212,0.06);
     }
 
-    button:hover {
+    button:hover,
+    button:focus-visible {
       background-color: var(--color-hover);
+      box-shadow: 0 2px 10px 0 rgba(0,188,212,0.13);
+      outline: none;
     }
 
-    @media (max-width: 500px) {
+    @media (max-width: 600px) {
       h1 {
         font-size: 2rem;
+      }
+      .search-container {
+        padding: 18px 8px 12px 8px;
+        max-width: 98vw;
+      }
+      .button-grid {
+        grid-template-columns: 1fr 1fr;
       }
     }
   </style>
@@ -88,28 +134,72 @@
 <body>
   <h1>Buscador Inteligente</h1>
   <div class="search-container">
-    <input type="text" id="query" placeholder="Buscar noticias, artículos o contenido...">
+    <label for="query">¿Qué desea buscar?</label>
+    <input type="text" id="query" placeholder="Buscar noticias, artículos o contenido..." autocomplete="off" spellcheck="false" autofocus>
     <div class="button-grid">
-      <button onclick="buscar('google_ar')">Google</button>
-      <button onclick="buscar('bing')">Bing</button>
-      <button onclick="buscar('yahoo_ar')">Yahoo</button>
-      <button onclick="buscar('wikipedia')">Wikipedia</button>
+      <button data-motor="google_ar">Google</button>
+      <button data-motor="bing">Bing</button>
+      <button data-motor="yahoo_ar">Yahoo</button>
+      <button data-motor="wikipedia">Wikipedia</button>
     </div>
   </div>
 
   <script>
+    // URLs de motores, usando un solo objeto global (mejor rendimiento)
+    const motores = {
+      google_ar: q => `https://www.google.com/search?q=${encodeURIComponent(q)}&tbs=sbd:1&cr=countryAR`,
+      bing: q => `https://www.bing.com/search?q=${encodeURIComponent(q)}&qft=sortbydate%3d%221%22`,
+      yahoo_ar: q => `https://ar.search.yahoo.com/search?p=${encodeURIComponent(q)}`,
+      wikipedia: q => `https://es.wikipedia.org/w/index.php?search=${encodeURIComponent(q)}`
+    };
+
+    // Mejorar accesibilidad: Enter en input activa primer motor (Google)
+    document.getElementById('query').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        buscar('google_ar');
+      }
+    });
+
+    // Delegación de eventos para botones
+    document.querySelector('.button-grid').addEventListener('click', function(e) {
+      if (e.target.matches('button[data-motor]')) {
+        buscar(e.target.dataset.motor);
+      }
+    });
+
     function buscar(motor) {
       const query = document.getElementById("query").value.trim();
-      if (!query) return alert("Por favor, escribí algo para buscar.");
+      if (!query) {
+        mostrarAlerta("Por favor, escribí algo para buscar.");
+        return;
+      }
+      const url = motores[motor]?.(query);
+      if (!url) return;
+      window.open(url, '_blank', 'noopener');
+    }
 
-      const urls = {
-        google_ar: `https://www.google.com/search?q=${encodeURIComponent(query)}&tbs=sbd:1&cr=countryAR`,
-        bing: `https://www.bing.com/search?q=${encodeURIComponent(query)}&qft=sortbydate%3d%221%22`,
-        yahoo_ar: `https://ar.search.yahoo.com/search?p=${encodeURIComponent(query)}`,
-        wikipedia: `https://es.wikipedia.org/w/index.php?search=${encodeURIComponent(query)}`
-      };
-
-      window.open(urls[motor], '_blank');
+    // Alertas óptimas y accesibles
+    function mostrarAlerta(msg) {
+      let alerta = document.getElementById('alerta');
+      if (!alerta) {
+        alerta = document.createElement('div');
+        alerta.id = 'alerta';
+        alerta.style.position = 'fixed';
+        alerta.style.top = '16px';
+        alerta.style.left = '50%';
+        alerta.style.transform = 'translateX(-50%)';
+        alerta.style.background = 'rgba(0,188,212,0.95)';
+        alerta.style.color = '#0f0f0f';
+        alerta.style.padding = '12px 28px';
+        alerta.style.borderRadius = '8px';
+        alerta.style.fontSize = '1.07rem';
+        alerta.style.zIndex = '1000';
+        alerta.style.boxShadow = '0 2px 12px 0 rgba(0,188,212,0.15)';
+        document.body.appendChild(alerta);
+      }
+      alerta.textContent = msg;
+      alerta.style.display = 'block';
+      setTimeout(() => { alerta.style.display = 'none'; }, 2200);
     }
   </script>
 </body>

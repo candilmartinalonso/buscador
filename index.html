@@ -61,7 +61,8 @@
         Google: q => `https://www.google.com/search?q=${q}&tbm=vid`,
         Bing: q => `https://www.bing.com/videos/search?q=${q}`,
         Yahoo: q => `https://ar.search.yahoo.com/video?p=${q}`,
-        Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`
+        Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`,
+        YouTube: q => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`
       },
       jobs: {
         'Google Empleos': q => `https://www.google.com/search?q=${encodeURIComponent(q)}&ibp=htl;jobs`,

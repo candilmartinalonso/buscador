@@ -128,10 +128,10 @@
   <script defer>
     const engines = {
       web: {
-        google:  { name: 'Google',  url: q => `https://www.google.com/search?q=${q}` },
-        bing:    { name: 'Bing',    url: q => `https://www.bing.com/search?q=${q}` },
-        yahoo:   { name: 'Yahoo',   url: q => `https://ar.search.yahoo.com/search?p=${q}` },
-        wiki:    { name: 'Wikipedia', url: q => `https://es.wikipedia.org/wiki/${q}` }
+        google:  { name: 'Google',      url: q => `https://www.google.com/search?q=${q}` },
+        bing:    { name: 'Bing',        url: q => `https://www.bing.com/search?q=${q}` },
+        yahoo:   { name: 'Yahoo',       url: q => `https://ar.search.yahoo.com/search?p=${q}` },
+        wiki:    { name: 'Wikipedia',   url: q => `https://es.wikipedia.org/wiki/${q}` }
       },
       news: {
         google: { name: 'Google Noticias', url: q => `https://www.google.com/search?q=${q}&tbm=nws` },
@@ -146,16 +146,17 @@
         wiki:   { name: 'Wikipedia',       url: q => `https://es.wikipedia.org/wiki/${q}` }
       },
       videos: {
-        google: { name: 'Google Videos', url: q => `https://www.google.com/search?q=${q}&tbm=vid` },
-        bing:   { name: 'Bing Videos',   url: q => `https://www.bing.com/videos/search?q=${q}` },
-        yahoo:  { name: 'Yahoo Videos',  url: q => `https://ar.search.yahoo.com/video?p=${q}` },
-        wiki:   { name: 'Wikipedia',     url: q => `https://es.wikipedia.org/wiki/${q}` }
+        google: { name: 'Google Videos',   url: q => `https://www.google.com/search?q=${q}&tbm=vid` },
+        bing:   { name: 'Bing Videos',     url: q => `https://www.bing.com/videos/search?q=${q}` },
+        yahoo:  { name: 'Yahoo Videos',    url: q => `https://ar.search.yahoo.com/video?p=${q}` },
+        wiki:   { name: 'Wikipedia',       url: q => `https://es.wikipedia.org/wiki/${q}` }
       },
       jobs: {
-        linkedin: { name: 'LinkedIn', url: q => `https://www.linkedin.com/jobs/search?keywords=${q}` },
-        indeed:   { name: 'Indeed',   url: q => `https://www.indeed.com.ar/jobs?q=${q}` },
-        zonajobs: { name: 'ZonaJobs', url: q => `https://www.zonajobs.com.ar/buscar/ofertas-de-trabajo?keywords=${q}` },
-        bumeran:  { name: 'Bumeran',  url: q => `https://www.bumeran.com.ar/empleos-busqueda.html?palabra=${q}` }
+        linkedin:    { name: 'LinkedIn',       url: q => `https://www.linkedin.com/jobs/search?keywords=${q}` },
+        indeed:      { name: 'Indeed',         url: q => `https://www.indeed.com.ar/jobs?q=${q}` },
+        zonajobs:    { name: 'ZonaJobs',       url: q => `https://www.zonajobs.com.ar/buscar/ofertas-de-trabajo?keywords=${q}` },
+        bumeran:     { name: 'Bumeran',        url: q => `https://www.bumeran.com.ar/empleos-busqueda.html?palabra=${q}` },
+        computrabajo:{ name: 'Computrabajo',   url: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}` }
       }
     };
 
@@ -193,7 +194,10 @@
     });
 
     categorySelect.addEventListener('change', renderButtons);
-    document.addEventListener('DOMContentLoaded', renderButtons);
+    document.addEventListener('DOMContentLoaded', () => {
+      categorySelect.value = 'jobs';
+      renderButtons();
+    });
   </script>
 </body>
 </html>

@@ -12,11 +12,11 @@
     .search-container { width: 100%; max-width: 480px; background: rgba(30,30,30,0.85); border-radius: 12px; box-shadow: var(--shadow); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
     label { font-size: 1rem; color: var(--color-accent); }
     .input-wrapper { position: relative; }
-    .input-wrapper svg { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); fill: var(--color-text); width: 1.2rem; height: 1.2rem; opacity: 0.6; }
-    input, select { width: 100%; padding: 0.8rem 1rem; border: none; border-radius: 6px; background: var(--input-bg); color: var(--color-text); box-shadow: 0 1px 6px rgba(0,188,212,0.07); font-size: 1rem; outline: none; transition: background var(--transition), border var(--transition); }
+    .input-wrapper svg { position: absolute; top: 0.8rem; left: auto; right: 1.1rem; pointer-events: none; fill: var(--color-text); width: 1.2rem; height: 1.2rem; opacity: 0.6; z-index: 2; }
+    input, select { width: 100%; padding: 0.8rem 2.5rem 0.8rem 1rem; border: none; border-radius: 6px; background: var(--input-bg); color: var(--color-text); box-shadow: 0 1px 6px rgba(0,188,212,0.07); font-size: 1rem; outline: none; transition: background var(--transition), border var(--transition); }
     input:focus { background: var(--input-focus); border: 2px solid var(--color-accent); }
-    .button-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(100px,1fr)); gap: 0.5rem; }
-    button { padding: 0.6rem; font-size: 0.95rem; background: var(--color-btn); color: var(--color-text); border: 1px solid var(--color-accent); border-radius: 6px; cursor: pointer; transition: background var(--transition); }
+    .button-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 0.5rem; }
+    button { padding: 0.6rem; font-size: 0.95rem; background: var(--color-btn); color: var(--color-text); border: 1px solid var(--color-accent); border-radius: 6px; cursor: pointer; transition: background var(--transition); white-space: normal; word-break: break-word; min-height:2.8em; }
     button:hover { background: var(--color-hover); }
   </style>
 </head>
@@ -25,8 +25,8 @@
   <div class="search-container" role="search">
     <label for="query">Buscar:</label>
     <div class="input-wrapper">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-5.34C15.07 5.59 12.52 3 9.5 3S3.93 5.59 3.93 8.39c0 2.8 2.55 5.39 5.57 5.39 1.61 0 3.09-.66 4.15-1.72l.27.28v.79l4.25 4.25 1.5-1.5-4.18-4.19z"/></svg>
       <input type="text" id="query" placeholder="Término..." autocomplete="off" autofocus>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-5.34C15.07 5.59 12.52 3 9.5 3S3.93 5.59 3.93 8.39c0 2.8 2.55 5.39 5.57 5.39 1.61 0 3.09-.66 4.15-1.72l.27.28v.79l4.25 4.25 1.5-1.5-4.18-4.19z"/></svg>
     </div>
     <select id="category" aria-label="Selecciona categoría">
       <option value="web">Web</option>
@@ -64,6 +64,7 @@
         Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`
       },
       jobs: {
+        'Google Empleos': q => `https://www.google.com/search?q=${encodeURIComponent(q)}&ibp=htl;jobs`,
         LinkedIn: q => `https://www.linkedin.com/jobs/search?keywords=${encodeURIComponent(q)}`,
         Indeed: q => `https://ar.indeed.com/jobs?q=${encodeURIComponent(q)}&l=&from=searchOnHP`,
         ZonaJobs: q => `https://www.zonajobs.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\s+/g,'-')}.html`,
@@ -78,28 +79,21 @@
 
     function render() {
       const term = query.value.trim();
-      if (!term) return;
       buttons.innerHTML = '';
+      if (!term) return;
       Object.entries(engines[category.value]).forEach(([name, fn]) => {
         const btn = document.createElement('button');
         btn.textContent = name;
         btn.onclick = () => {
-          let url;
-          if(category.value==='jobs' && (name==='ZonaJobs'||name==='Bumeran')){
-            url = fn(term);
-          } else if(category.value==='jobs' && name==='Computrabajo'){
-            url = fn(term);
-          } else {
-            url = fn(term);
-          }
+          let url = fn(term);
           window.open(url, '_blank', 'noopener');
         }
         buttons.appendChild(btn);
       });
     }
 
+    query.addEventListener('input', render);
     category.addEventListener('change', render);
-    query.addEventListener('keydown', e => { if (e.key === 'Enter') render(); });
     document.addEventListener('DOMContentLoaded', () => { category.value = 'jobs'; render(); });
   </script>
 </body>

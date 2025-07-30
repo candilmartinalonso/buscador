@@ -69,7 +69,10 @@
         Indeed: q => `https://ar.indeed.com/jobs?q=${encodeURIComponent(q)}&l=&from=searchOnHP`,
         ZonaJobs: q => `https://www.zonajobs.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\s+/g,'-')}.html`,
         Bumeran: q => `https://www.bumeran.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\s+/g,'-')}.html`,
-        Computrabajo: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${encodeURIComponent(q)}`
+        Computrabajo: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${encodeURIComponent(q)}`,
+        Glassdoor: q => `https://www.glassdoor.com.ar/Empleo/empleos-${encodeURIComponent(q)}.htm`,
+        'RRHHJobs': q => `https://rrhhjobs.com/empleos-de-rrhh-listado/?search_keywords=${encodeURIComponent(q)}&search_category=0`,
+        'Empleos Clarín': q => `https://empleos.clarin.com/postulantes/avisos/trabajo/AL${encodeURIComponent(q)}`
       }
     };
 
@@ -80,7 +83,6 @@
     function render() {
       const term = query.value.trim();
       buttons.innerHTML = '';
-      if (!term) return;
       Object.entries(engines[category.value]).forEach(([name, fn]) => {
         const btn = document.createElement('button');
         btn.textContent = name;
@@ -94,7 +96,7 @@
 
     query.addEventListener('input', render);
     category.addEventListener('change', render);
-    document.addEventListener('DOMContentLoaded', () => { category.value = 'jobs'; render(); });
+    document.addEventListener('DOMContentLoaded', () => { category.value = 'web'; render(); });
   </script>
 </body>
 </html>

@@ -4,108 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buscador Inteligente</title>
-  <!-- Carga diferida de Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap" rel="stylesheet"></noscript>
   <style>
-    :root {
-      --color-bg: #0f0f0f;
-      --color-accent: #00bcd4;
-      --color-btn: #1a1a1a;
-      --color-hover: #00acc1;
-      --color-text: #f0f0f0;
-      --input-bg: #1e1e1e;
-      --input-focus: #222a2a;
-      --shadow: 0 2px 12px rgba(0,188,212,0.10);
-      --transition: 0.2s ease-in-out;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background-color: var(--color-bg);
-      color: var(--color-text);
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      min-height: 100vh;
-      transition: background-color var(--transition);
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: var(--color-accent);
-      text-shadow: var(--shadow);
-    }
-    .search-container {
-      width: 100%;
-      max-width: 480px;
-      background: rgba(30,30,30,0.85);
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    label { font-size: 1rem; color: var(--color-accent); }
-    .input-wrapper { position: relative; }
-    .input-wrapper svg {
-      position: absolute;
-      top: 50%;
-      left: 12px;
-      transform: translateY(-50%);
-      fill: var(--color-text);
-      width: 1.2rem;
-      height: 1.2rem;
-      opacity: 0.6;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 0.8rem 1rem 0.8rem 2.5rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 6px;
-      background: var(--input-bg);
-      color: var(--color-text);
-      box-shadow: 0 1px 6px rgba(0,188,212,0.07);
-      transition: background var(--transition), border var(--transition);
-      outline: none;
-    }
-    input[type="text"]:focus {
-      background: var(--input-focus);
-      border: 2px solid var(--color-accent);
-    }
-    select {
-      width: 100%;
-      padding: 0.6rem 1rem;
-      font-size: 0.95rem;
-      border: none;
-      border-radius: 6px;
-      background: var(--input-bg);
-      color: var(--color-text);
-      box-shadow: 0 1px 6px rgba(0,188,212,0.07);
-      outline: none;
-      transition: background var(--transition);
-    }
-    .button-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 0.5rem;
-    }
-    button {
-      padding: 0.6rem;
-      font-size: 0.95rem;
-      background-color: var(--color-btn);
-      color: var(--color-text);
-      border: 1px solid var(--color-accent);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color var(--transition);
-    }
-    button:hover { background-color: var(--color-hover); }
+    :root{--color-bg:#0f0f0f;--color-accent:#00bcd4;--color-btn:#1a1a1a;--color-hover:#00acc1;--color-text:#f0f0f0;--input-bg:#1e1e1e;--input-focus:#222a2a;--shadow:0 2px 12px rgba(0,188,212,0.1);--transition:.2s;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--color-bg);color:var(--color-text);font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;min-height:100vh;}
+    h1{font-size:2.5rem;margin-bottom:1rem;color:var(--color-accent);text-shadow:var(--shadow);}
+    .search-container{width:100%;max-width:480px;background:rgba(30,30,30,.85);border-radius:12px;box-shadow:var(--shadow);padding:1.5rem;display:flex;flex-direction:column;gap:.75rem;}
+    label{font-size:1rem;color:var(--color-accent);}
+    .input-wrapper{position:relative;}
+    .input-wrapper svg{position:absolute;top:50%;left:12px;transform:translateY(-50%);fill:var(--color-text);width:1.2rem;height:1.2rem;opacity:.6;}
+    input,select{width:100%;padding:.8rem 1rem;border:none;border-radius:6px;background:var(--input-bg);color:var(--color-text);box-shadow:0 1px 6px rgba(0,188,212,.07);font-size:1rem;outline:none;transition:background var(--transition),border var(--transition);}
+    input:focus{background:var(--input-focus);border:2px solid var(--color-accent);}
+    .button-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:.5rem;}
+    button{padding:.6rem;font-size:.95rem;background:var(--color-btn);color:var(--color-text);border:1px solid var(--color-accent);border-radius:6px;cursor:pointer;transition:background var(--transition);}
+    button:hover{background:var(--color-hover);}
   </style>
 </head>
 <body>
@@ -113,10 +29,10 @@
   <div class="search-container" role="search">
     <label for="query">Buscar:</label>
     <div class="input-wrapper">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-5.34C15.07 5.59 12.52 3 9.5 3S3.93 5.59 3.93 8.39c0 2.8 2.55 5.39 5.57 5.39 1.61 0 3.09-.66 4.15-1.72l.27.28v.79l4.25 4.25 1.5-1.5-4.18-4.19z"></path></svg>
-      <input type="text" id="query" placeholder="Término..." autocomplete="off" autofocus>
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-5.34C15.07 5.59 12.52 3 9.5 3S3.93 5.59 3.93 8.39c0 2.8 2.55 5.39 5.57 5.39 1.61 0 3.09-.66 4.15-1.72l.27.28v.79l4.25 4.25 1.5-1.5-4.18-4.19z"></path></svg>
+      <input type="text" id="query" placeholder="Término..." autocomplete="off">
     </div>
-    <select id="category" aria-label="Selecciona categoría">
+    <select id="category">
       <option value="web">Web</option>
       <option value="news">Noticias</option>
       <option value="images">Imágenes</option>
@@ -125,79 +41,32 @@
     </select>
     <div class="button-grid" id="buttons"></div>
   </div>
-  <script defer>
+  <script>
     const engines = {
-      web: {
-        google:  { name: 'Google',      url: q => `https://www.google.com/search?q=${q}` },
-        bing:    { name: 'Bing',        url: q => `https://www.bing.com/search?q=${q}` },
-        yahoo:   { name: 'Yahoo',       url: q => `https://ar.search.yahoo.com/search?p=${q}` },
-        wiki:    { name: 'Wikipedia',   url: q => `https://es.wikipedia.org/wiki/${q}` }
-      },
-      news: {
-        google: { name: 'Google Noticias', url: q => `https://www.google.com/search?q=${q}&tbm=nws` },
-        bing:   { name: 'Bing Noticias',   url: q => `https://www.bing.com/news/search?q=${q}` },
-        yahoo:  { name: 'Yahoo Noticias',  url: q => `https://ar.search.yahoo.com/news?p=${q}` },
-        wiki:   { name: 'Wikipedia',       url: q => `https://es.wikipedia.org/wiki/${q}` }
-      },
-      images: {
-        google: { name: 'Google Imágenes', url: q => `https://www.google.com/search?q=${q}&tbm=isch` },
-        bing:   { name: 'Bing Imágenes',   url: q => `https://www.bing.com/images/search?q=${q}` },
-        yahoo:  { name: 'Yahoo Imágenes',  url: q => `https://ar.search.yahoo.com/images?p=${q}` },
-        wiki:   { name: 'Wikipedia',       url: q => `https://es.wikipedia.org/wiki/${q}` }
-      },
-      videos: {
-        google: { name: 'Google Videos',   url: q => `https://www.google.com/search?q=${q}&tbm=vid` },
-        bing:   { name: 'Bing Videos',     url: q => `https://www.bing.com/videos/search?q=${q}` },
-        yahoo:  { name: 'Yahoo Videos',    url: q => `https://ar.search.yahoo.com/video?p=${q}` },
-        wiki:   { name: 'Wikipedia',       url: q => `https://es.wikipedia.org/wiki/${q}` }
-      },
-      jobs: {
-        linkedin:    { name: 'LinkedIn',       url: q => `https://www.linkedin.com/jobs/search?keywords=${q}` },
-        indeed:      { name: 'Indeed',         url: q => `https://www.indeed.com.ar/jobs?q=${q}` },
-        zonajobs:    { name: 'ZonaJobs',       url: q => `https://www.zonajobs.com.ar/buscar/ofertas-de-trabajo?keywords=${q}` },
-        bumeran:     { name: 'Bumeran',        url: q => `https://www.bumeran.com.ar/empleos-busqueda.html?palabra=${q}` },
-        computrabajo:{ name: 'Computrabajo',   url: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}` }
-      }
+      web:{google:'https://www.google.com/search?q=',bing:'https://www.bing.com/search?q=',yahoo:'https://ar.search.yahoo.com/search?p=',wiki:'https://es.wikipedia.org/wiki/'},
+      news:{google:'https://www.google.com/search?q=',bing:'https://www.bing.com/news/search?q=',yahoo:'https://ar.search.yahoo.com/news?p=',wiki:'https://es.wikipedia.org/wiki/'},
+      images:{google:'https://www.google.com/search?q=',bing:'https://www.bing.com/images/search?q=',yahoo:'https://ar.search.yahoo.com/images?p=',wiki:'https://es.wikipedia.org/wiki/'},
+      videos:{google:'https://www.google.com/search?q=',bing:'https://www.bing.com/videos/search?q=',yahoo:'https://ar.search.yahoo.com/video?p=',wiki:'https://es.wikipedia.org/wiki/'},
+      jobs:{linkedin:'https://www.linkedin.com/jobs/search?keywords=',indeed:'https://www.indeed.com.ar/jobs?q=',zonajobs:'https://www.zonajobs.com.ar/buscar/ofertas-de-trabajo?keywords=',bumeran:'https://www.bumeran.com.ar/empleos-busqueda.html?palabra=',computrabajo:'https://www.computrabajo.com.ar/empleos/?q='}
     };
-
-    const queryInput = document.getElementById('query');
-    const categorySelect = document.getElementById('category');
-    const buttonsContainer = document.getElementById('buttons');
-
-    function renderButtons() {
-      const selected = categorySelect.value;
-      const list = engines[selected] || engines.web;
-      buttonsContainer.innerHTML = '';
-      for (const key in list) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = list[key].name;
-        btn.dataset.key = key;
+    const queryInput=document.getElementById('query');
+    const categorySelect=document.getElementById('category');
+    const buttonsContainer=document.getElementById('buttons');
+    function renderButtons(){
+      const cat=categorySelect.value;buttonsContainer.innerHTML='';
+      Object.keys(engines[cat]).forEach(key=>{
+        const btn=document.createElement('button');btn.textContent=key.charAt(0).toUpperCase()+key.slice(1);
+        btn.onclick=()=>{
+          const q=encodeURIComponent(queryInput.value.trim());
+          if(!q) return queryInput.focus();
+          window.open(engines[cat][key]+q, '_blank');
+        };
         buttonsContainer.appendChild(btn);
-      }
+      });
     }
-
-    buttonsContainer.addEventListener('click', e => {
-      if (e.target.tagName !== 'BUTTON') return;
-      const q = encodeURIComponent(queryInput.value.trim());
-      if (!q) return queryInput.focus();
-      const key = e.target.dataset.key;
-      const engine = engines[categorySelect.value][key];
-      window.open(engine.url(q), '_blank', 'noopener');
-    });
-
-    queryInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        const first = buttonsContainer.querySelector('button');
-        if (first) first.click();
-      }
-    });
-
-    categorySelect.addEventListener('change', renderButtons);
-    document.addEventListener('DOMContentLoaded', () => {
-      categorySelect.value = 'jobs';
-      renderButtons();
-    });
+    categorySelect.addEventListener('change',renderButtons);
+    document.getElementById('query').addEventListener('keydown',e=>{if(e.key==='Enter')renderButtons();});
+    document.addEventListener('DOMContentLoaded',renderButtons);
   </script>
 </body>
 </html>

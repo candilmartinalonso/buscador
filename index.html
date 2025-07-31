@@ -43,26 +43,26 @@
         Google: q => `https://www.google.com/search?q=${q}`,
         Bing: q => `https://www.bing.com/search?q=${q}`,
         Yahoo: q => `https://ar.search.yahoo.com/search?p=${q}`,
-        Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`
+        Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`,
       },
       news: {
         Google: q => `https://www.google.com/search?q=${q}&tbm=nws`,
         Bing: q => `https://www.bing.com/news/search?q=${q}`,
         Yahoo: q => `https://ar.search.yahoo.com/news?p=${q}`,
-        Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`
+        'Clarín': q => `https://www.clarin.com/buscar/${encodeURIComponent(q)}`,
+        'La Nación': q => `https://www.lanacion.com.ar/buscador/?query=${encodeURIComponent(q)}`,
+        Infobae: q => `https://www.infobae.com/buscador/?s=${encodeURIComponent(q)}`,
       },
       images: {
         Google: q => `https://www.google.com/search?q=${q}&tbm=isch`,
         Bing: q => `https://www.bing.com/images/search?q=${q}`,
         Yahoo: q => `https://ar.search.yahoo.com/images?p=${q}`,
-        Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`
       },
       videos: {
         Google: q => `https://www.google.com/search?q=${q}&tbm=vid`,
         Bing: q => `https://www.bing.com/videos/search?q=${q}`,
         Yahoo: q => `https://ar.search.yahoo.com/video?p=${q}`,
-        Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`,
-        YouTube: q => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`
+        YouTube: q => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
       },
       jobs: {
         'Google Empleos': q => `https://www.google.com/search?q=${encodeURIComponent(q)}&ibp=htl;jobs`,
@@ -73,8 +73,8 @@
         Computrabajo: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${encodeURIComponent(q)}`,
         Glassdoor: q => `https://www.glassdoor.com.ar/Empleo/empleos-${encodeURIComponent(q)}.htm`,
         'RRHHJobs': q => `https://rrhhjobs.com/empleos-de-rrhh-listado/?search_keywords=${encodeURIComponent(q)}&search_category=0`,
-        'Empleos Clarín': q => `https://empleos.clarin.com/postulantes/avisos/trabajo/AL${encodeURIComponent(q)}`
-      }
+        'Empleos Clarín': q => `https://empleos.clarin.com/postulantes/avisos/trabajo/AL${encodeURIComponent(q)}`,
+      },
     };
 
     const query = document.getElementById('query');
@@ -88,9 +88,9 @@
         const btn = document.createElement('button');
         btn.textContent = name;
         btn.onclick = () => {
-          let url = fn(term);
+          const url = fn(term);
           window.open(url, '_blank', 'noopener');
-        }
+        };
         buttons.appendChild(btn);
       });
     }

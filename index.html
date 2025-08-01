@@ -39,6 +39,7 @@
       <option value="images">Imágenes</option>
       <option value="videos">Videos</option>
       <option value="jobs">Empleos</option>
+      <option value="shopping">Compras</option>
     </select>
 
     <!-- Contenedor de botones que se generarán dinámicamente -->
@@ -54,6 +55,7 @@
         web: {
           Google: q => `https://www.google.com/search?q=${q}`,
           Bing: q => `https://www.bing.com/search?q=${q}`,
+          DuckDuckGo: q => `https://duckduckgo.com/?q=${q}`,
           Yahoo: q => `https://ar.search.yahoo.com/search?p=${q}`,
           Wikipedia: q => `https://es.wikipedia.org/wiki/${q}`,
         },
@@ -64,17 +66,21 @@
           Clarín: q => `https://www.clarin.com/buscar/${encodeURIComponent(q)}`,
           'La Nación': q => `https://www.lanacion.com.ar/buscador/?query=${encodeURIComponent(q)}`,
           Infobae: q => `https://www.infobae.com/buscador/?s=${encodeURIComponent(q)}`,
+          CNN: q => `https://edition.cnn.com/search?q=${encodeURIComponent(q)}`,
         },
         images: {
           Google: q => `https://www.google.com/search?q=${q}&tbm=isch`,
           Bing: q => `https://www.bing.com/images/search?q=${q}`,
           Yahoo: q => `https://ar.search.yahoo.com/images?p=${q}`,
+          Pinterest: q => `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(q)}`,
         },
         videos: {
           Google: q => `https://www.google.com/search?q=${q}&tbm=vid`,
           Bing: q => `https://www.bing.com/videos/search?q=${q}`,
           Yahoo: q => `https://ar.search.yahoo.com/video?p=${q}`,
           YouTube: q => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
+          Vimeo: q => `https://vimeo.com/search?q=${encodeURIComponent(q)}`,
+          Dailymotion: q => `https://www.dailymotion.com/search/${encodeURIComponent(q)}`,
         },
         jobs: {
           'Google Empleos': q => `https://www.google.com/search?q=${encodeURIComponent(q)}&ibp=htl;jobs`,
@@ -86,7 +92,11 @@
           Glassdoor: q => `https://www.glassdoor.com.ar/Empleo/empleos-${encodeURIComponent(q)}.htm`,
           RRHHJobs: q => `https://rrhhjobs.com/empleos-de-rrhh-listado/?search_keywords=${encodeURIComponent(q)}&search_category=0`,
           'Empleos Clarín': q => `https://empleos.clarin.com/postulantes/avisos/trabajo/AL${encodeURIComponent(q)}`,
+          'Simply Hired': q => `https://www.simplyhired.com.ar/search?q=${encodeURIComponent(q)}`,
         },
+        shopping: {
+          'Mercado Libre': q => `https://listado.mercadolibre.com.ar/${encodeURIComponent(q)}`,
+        }
       };
 
       // Referencias a los elementos del DOM

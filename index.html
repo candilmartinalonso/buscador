@@ -32,8 +32,24 @@
       <option value="shopping">Compras</option>
       <option value="maps">Mapas</option>
     </select>
+
+    <!-- Operadores avanzados -->
+    <details class="text-sm text-gray-300 mt-2">
+      <summary class="cursor-pointer text-teal-400 mb-1">Operadores avanzados de búsqueda</summary>
+      <ul class="list-disc list-inside ml-2 mt-1 space-y-1">
+        <li><code class="text-teal-300">"frase exacta"</code> – busca la frase exacta</li>
+        <li><code class="text-teal-300">palabra1 AND palabra2</code> – ambas palabras</li>
+        <li><code class="text-teal-300">palabra1 OR palabra2</code> – cualquiera</li>
+        <li><code class="text-teal-300">palabra1 -palabra2</code> – excluye palabra2</li>
+        <li><code class="text-teal-300">site:ejemplo.com</code> – solo en ese sitio</li>
+        <li><code class="text-teal-300">filetype:pdf</code> – solo archivos PDF</li>
+        <li><code class="text-teal-300">intitle:palabra</code> – palabra en el título</li>
+      </ul>
+    </details>
+
     <div id="buttons" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2"></div>
   </div>
+
   <script>
     (function() {
       const engines = {
@@ -71,8 +87,8 @@
           'Google Empleos': q => `https://www.google.com/search?q=${encodeURIComponent(q)}&ibp=htl;jobs`,
           LinkedIn: q => `https://www.linkedin.com/jobs/search?keywords=${encodeURIComponent(q)}`,
           Indeed: q => `https://ar.indeed.com/jobs?q=${encodeURIComponent(q)}&l=&from=searchOnHP`,
-          ZonaJobs: q => `https://www.zonajobs.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\\s+/g, '-')}.html`,
-          Bumeran: q => `https://www.bumeran.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\\s+/g, '-')}.html`,
+          ZonaJobs: q => `https://www.zonajobs.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\s+/g, '-')}.html`,
+          Bumeran: q => `https://www.bumeran.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\s+/g, '-')}.html`,
           Computrabajo: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${encodeURIComponent(q)}`,
           Glassdoor: q => `https://www.glassdoor.com.ar/Empleo/empleos-${encodeURIComponent(q)}.htm`,
           RRHHJobs: q => `https://rrhhjobs.com/empleos-de-rrhh-listado/?search_keywords=${encodeURIComponent(q)}&search_category=0`,
@@ -121,6 +137,7 @@
           buttons.innerHTML = mapHTML;
         }
       }
+
       query.addEventListener('input', render);
       category.addEventListener('change', render);
       document.addEventListener('DOMContentLoaded', render);

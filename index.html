@@ -4,34 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buscador Inteligente</title>
-  <!-- Se usa Tailwind CSS para un diseño moderno y responsive -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Se usa la fuente Inter para un estilo limpio -->
   <style>
     body {
       font-family: 'Inter', sans-serif;
     }
   </style>
 </head>
-
 <body class="bg-gray-900 text-gray-100 flex flex-col items-center min-h-screen p-4">
-  <!-- Título principal con estilo Tailwind -->
   <h1 class="text-3xl sm:text-4xl font-bold mb-6 text-teal-400">Buscador Inteligente</h1>
-
-  <!-- Contenedor principal del buscador con estilos de sombra y esquinas redondeadas -->
   <div class="w-full max-w-xl bg-gray-800 bg-opacity-80 rounded-2xl shadow-lg p-6 flex flex-col gap-4">
-    <!-- Etiqueta y campo de entrada para el término de búsqueda -->
     <label for="query" class="text-teal-400 font-medium">Buscar:</label>
     <div class="relative">
       <input type="text" id="query" placeholder="Término..." autocomplete="off" autofocus
         class="w-full px-4 py-2 pl-4 pr-10 rounded-lg bg-gray-700 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors">
-      <!-- Icono de búsqueda SVG dentro del campo de entrada -->
       <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" viewBox="0 0 24 24" aria-hidden="true">
         <path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-5.34C15.07 5.59 12.52 3 9.5 3S3.93 5.59 3.93 8.39c0 2.8 2.55 5.39 5.57 5.39 1.61 0 3.09-.66 4.15-1.72l.27.28v.79l4.25 4.25 1.5-1.5-4.18-4.19z" />
       </svg>
     </div>
-
-    <!-- Menú desplegable para seleccionar la categoría -->
     <select id="category" aria-label="Selecciona categoría"
       class="w-full px-4 py-2 rounded-lg bg-gray-700 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors">
       <option value="web">Web</option>
@@ -40,17 +30,12 @@
       <option value="videos">Videos</option>
       <option value="jobs">Empleos</option>
       <option value="shopping">Compras</option>
+      <option value="maps">Mapas</option>
     </select>
-
-    <!-- Contenedor de botones que se generarán dinámicamente -->
     <div id="buttons" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2"></div>
   </div>
-
   <script>
-    // La lógica principal del script se envuelve en una función anónima
-    // para evitar conflictos con otras variables globales.
     (function() {
-      // Objeto que contiene los motores de búsqueda por categoría
       const engines = {
         web: {
           Google: q => `https://www.google.com/search?q=${q}`,
@@ -86,8 +71,8 @@
           'Google Empleos': q => `https://www.google.com/search?q=${encodeURIComponent(q)}&ibp=htl;jobs`,
           LinkedIn: q => `https://www.linkedin.com/jobs/search?keywords=${encodeURIComponent(q)}`,
           Indeed: q => `https://ar.indeed.com/jobs?q=${encodeURIComponent(q)}&l=&from=searchOnHP`,
-          ZonaJobs: q => `https://www.zonajobs.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\s+/g, '-')}.html`,
-          Bumeran: q => `https://www.bumeran.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\s+/g, '-')}.html`,
+          ZonaJobs: q => `https://www.zonajobs.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\\s+/g, '-')}.html`,
+          Bumeran: q => `https://www.bumeran.com.ar/empleos-busqueda-${q.toLowerCase().replace(/\\s+/g, '-')}.html`,
           Computrabajo: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${encodeURIComponent(q)}`,
           Glassdoor: q => `https://www.glassdoor.com.ar/Empleo/empleos-${encodeURIComponent(q)}.htm`,
           RRHHJobs: q => `https://rrhhjobs.com/empleos-de-rrhh-listado/?search_keywords=${encodeURIComponent(q)}&search_category=0`,
@@ -99,39 +84,46 @@
         }
       };
 
-      // Referencias a los elementos del DOM
+      const mapEngines = {
+        "Google Maps": q => `https://www.google.com/maps/search/${q}`,
+        "Bing Maps": q => `https://www.bing.com/maps?q=${q}`,
+        "Apple Maps": q => `https://maps.apple.com/?q=${q}`
+      };
+
       const query = document.getElementById('query');
       const category = document.getElementById('category');
       const buttons = document.getElementById('buttons');
 
-      // Función para renderizar los botones de búsqueda de manera eficiente
-      const render = () => {
+      function render() {
         const term = query.value.trim();
-        const categoryEngines = engines[category.value];
-
-        // Se crea un array de HTML de botones y luego se une para un solo renderizado
-        const buttonHTML = Object.entries(categoryEngines).map(([name, fn]) => {
-          // Se usa una template string para generar el HTML del botón de forma limpia
-          return `<button 
+        const selected = category.value;
+        buttons.innerHTML = '';
+        if(selected !== 'maps'){
+          const categoryEngines = engines[selected];
+          const buttonHTML = Object.entries(categoryEngines).map(([name, fn]) => {
+            return `<button 
                     class="bg-gray-700 text-gray-100 border border-teal-500 rounded-lg p-2 hover:bg-teal-600 transition-colors duration-200 text-sm"
                     onclick="window.open('${fn(term)}', '_blank', 'noopener');"
-                    ${!term ? 'disabled' : ''}
-                  >
+                    ${!term ? 'disabled' : ''}>
                     ${name}
                   </button>`;
-        }).join('');
-
-        buttons.innerHTML = buttonHTML;
-      };
-
-      // Se asignan los listeners a los eventos de entrada y cambio
+          }).join('');
+          buttons.innerHTML = buttonHTML;
+        } else {
+          const mapHTML = Object.entries(mapEngines).map(([name, fn]) => {
+            return `<button
+                      class="bg-gray-700 text-gray-100 border border-teal-500 rounded-lg p-2 hover:bg-teal-600 transition-colors duration-200 text-sm"
+                      onclick="window.open('${fn(encodeURIComponent(term))}', '_blank', 'noopener');"
+                      ${!term ? 'disabled' : ''}>
+                      ${name}
+                    </button>`;
+          }).join('');
+          buttons.innerHTML = mapHTML;
+        }
+      }
       query.addEventListener('input', render);
       category.addEventListener('change', render);
-
-      // Se llama a la función de renderizado inicial al cargar el DOM
-      document.addEventListener('DOMContentLoaded', () => {
-        render();
-      });
+      document.addEventListener('DOMContentLoaded', render);
     })();
   </script>
 </body>

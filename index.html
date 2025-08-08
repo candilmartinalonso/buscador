@@ -3,178 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buscador Inteligente</title>
+  <title>Buscador Inteligente Animado</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Usamos la fuente Inter y añadimos algunas transiciones suaves */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #111827; /* bg-gray-900 */
+    }
+    .transition-all {
+      transition: all 0.3s ease-in-out;
+    }
+    /* Estilo para el scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1f2937; /* bg-gray-800 */
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #14b8a6; /* teal-500 */
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0d9488; /* teal-600 */
+    }
+
+    /* Clases para animación de entrada */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Animación para los botones */
+    .button-pop-in {
+        opacity: 0;
+        transform: scale(0.95);
+        animation: popIn 0.4s ease-out forwards;
+    }
+
+    @keyframes popIn {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Animación para el <details> */
+    details[open] summary ~ * {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-gray-100 flex flex-col items-center min-h-screen p-4">
-  <h1 class="text-3xl sm:text-4xl font-bold mb-6 text-teal-400">Buscador Inteligente</h1>
-  <div class="w-full max-w-xl bg-gray-800 bg-opacity-80 rounded-2xl shadow-lg p-6 flex flex-col gap-4">
-    <label for="query" class="text-teal-400 font-medium">Buscar:</label>
-    <div class="relative">
-      <input id="query" type="text" placeholder="Término..." autocomplete="off" autofocus
-        class="w-full px-4 py-2 pl-10 rounded-lg bg-gray-700 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors">
-      <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-        viewBox="0 0 24 24">
-        <path fill="currentColor"
-          d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-5.34C15.07 5.59 12.52 3 9.5 3S3.93 5.59 3.93 8.39c0 2.8 2.55 5.39 5.57 5.39 1.61 0 3.09-.66 4.15-1.72l.27.28v.79l4.25 4.25 1.5-1.5-4.18-4.19z" />
-      </svg>
-    </div>
-    <select id="category" aria-label="Seleccionar categoría"
-      class="w-full px-4 py-2 rounded-lg bg-gray-700 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors">
-      <option value="web">Web</option>
-      <option value="news">Noticias</option>
-      <option value="images">Imágenes</option>
-      <option value="videos">Videos</option>
-      <option value="jobs">Empleos</option>
-      <option value="shopping">Compras</option>
-      <option value="maps">Mapas</option>
-    </select>
-    <details class="text-sm text-gray-300 mt-2">
-      <summary class="cursor-pointer text-teal-400 mb-1">Operadores avanzados de búsqueda</summary>
-      <ul class="list-disc list-inside ml-2 mt-1 space-y-1">
-        <li><code class="text-teal-300">"frase exacta"</code> – frase exacta</li>
-        <li><code class="text-teal-300">palabra1 AND palabra2</code> – ambas palabras</li>
-        <li><code class="text-teal-300">palabra1 OR palabra2</code> – cualquiera</li>
-        <li><code class="text-teal-300">palabra1 -palabra2</code> – excluye palabra2</li>
-        <li><code class="text-teal-300">site:dominio.com</code> – dominio específico</li>
-        <li><code class="text-teal-300">filetype:pdf</code> – archivos PDF</li>
-        <li><code class="text-teal-300">intitle:palabra</code> – en el título</li>
-        <li><code class="text-teal-300">inurl:palabra</code> – en la URL</li>
-        <li><code class="text-teal-300">intext:palabra</code> – en el texto</li>
-        <li><code class="text-teal-300">cache:URL</code> – versión en caché</li>
-        <li><code class="text-teal-300">related:URL</code> – sitios relacionados</li>
-        <li><code class="text-teal-300">define:palabra</code> – definición</li>
-        <li><code class="text-teal-300">allintitle:palabras</code> – todas en título</li>
-        <li><code class="text-teal-300">allinurl:palabras</code> – todas en URL</li>
-        <li><code class="text-teal-300">allintext:palabras</code> – todas en texto</li>
-        <li><code class="text-teal-300">ext:extensión</code> – por extensión (ext:docx)</li>
-        <li><code class="text-teal-300">location:país</code> – geolocalización</li>
-        <li><code class="text-teal-300">before:AAAA-MM-DD</code> – antes de fecha</li>
-        <li><code class="text-teal-300">after:AAAA-MM-DD</code> – después de fecha</li>
-      </ul>
-    </details>
-    <div id="buttons" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2"></div>
+<body class="text-gray-200 flex flex-col items-center min-h-screen p-4 selection:bg-teal-500 selection:text-white">
+
+  <!-- Contenedor Principal -->
+  <div class="w-full max-w-2xl mx-auto">
+    <header class="text-center mb-8 fade-in-up" style="animation-delay: 100ms;">
+      <h1 class="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-500 mb-2">Buscador Inteligente</h1>
+      <p class="text-gray-400">Selecciona una categoría y un motor para iniciar tu búsqueda.</p>
+    </header>
+
+    <!-- Caja de Búsqueda -->
+    <main class="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 p-6 flex flex-col gap-5 fade-in-up" style="animation-delay: 200ms;">
+      
+      <!-- Input de Búsqueda -->
+      <div class="relative flex items-center">
+        <label for="query" class="sr-only">Buscar:</label>
+        <svg class="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <input id="query" type="text" placeholder="Escribe tu búsqueda aquí..." autocomplete="off" autofocus
+          class="w-full px-4 py-3 pl-12 pr-10 rounded-lg bg-gray-900 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
+        <button id="clear-query" class="absolute right-3 text-gray-500 hover:text-white transition-colors" aria-label="Limpiar búsqueda" style="display: none;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Selector de Categoría -->
+      <div>
+        <label for="category" class="text-gray-400 text-sm font-medium mb-2 block">Categoría</label>
+        <select id="category" aria-label="Seleccionar categoría"
+          class="w-full px-4 py-3 rounded-lg bg-gray-900 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
+          <option value="web">🌐 Web</option>
+          <option value="news">📰 Noticias</option>
+          <option value="images">🖼️ Imágenes</option>
+          <option value="videos">🎬 Videos</option>
+          <option value="jobs">💼 Empleos</option>
+          <option value="shopping">🛒 Compras</option>
+          <option value="maps">🗺️ Mapas</option>
+        </select>
+      </div>
+
+      <!-- Contenedor de Botones de Búsqueda -->
+      <div id="buttons-container" class="border-t border-gray-700 pt-5 min-h-[80px]">
+        <p id="buttons-placeholder" class="text-center text-gray-500 transition-opacity duration-300">Escribe algo para ver los motores de búsqueda.</p>
+        <div id="buttons" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+      </div>
+
+      <!-- Operadores Avanzados -->
+      <details class="text-sm text-gray-400 mt-2">
+        <summary class="cursor-pointer text-teal-400 hover:text-teal-300 transition-colors">Ayuda: Operadores de búsqueda</summary>
+        <div class="bg-gray-900/50 p-4 mt-2 rounded-md border border-gray-700">
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">"frase exacta"</code> – Frase exacta</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">-palabra</code> – Excluye una palabra</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">palabra1 AND palabra2</code> – Ambas palabras</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">palabra1 OR palabra2</code> – Una u otra palabra</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">site:dominio.com</code> – Dominio específico</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">filetype:pdf</code> – Tipo de archivo</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">ext:pdf</code> – Extensión de archivo</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">intitle:palabra</code> – Palabra en el título</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allintitle:palabras</code> – Todas en el título</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">inurl:palabra</code> – Palabra en la URL</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allinurl:palabras</code> – Todas en la URL</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">intext:palabra</code> – Palabra en el texto</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allintext:palabras</code> – Todas en el texto</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">related:URL</code> – Sitios relacionados</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">cache:URL</code> – Versión en caché</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">define:palabra</code> – Definición</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">location:país</code> – Geolocalización</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">before:AAAA-MM-DD</code> – Antes de fecha</li>
+                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">after:AAAA-MM-DD</code> – Después de fecha</li>
+            </ul>
+        </div>
+      </details>
+    </main>
   </div>
+
   <script>
     (function() {
+      // --- CONFIGURACIÓN DE MOTORES DE BÚSQUEDA ---
       const engines = {
-        web: {
-          Google: q => `https://www.google.com/search?q=${q}`,
-          Bing: q => `https://www.bing.com/search?q=${q}`,
-          DuckDuckGo: q => `https://duckduckgo.com/?q=${q}`,
-          Yahoo: q => `https://search.yahoo.com/search?p=${q}`,
-          Ask: q => `https://www.ask.com/web?q=${q}`,
-          Qwant: q => `https://www.qwant.com/?q=${q}`,
-          Mojeek: q => `https://www.mojeek.com/search?q=${q}`,
-          Yippy: q => `https://yippy.com/search?query=${q}`,
-          MetaGer: q => `https://metager.org/meta/meta.ger3?eingabe=${q}`,
-          Ecosia: q => `https://www.ecosia.org/search?q=${q}`,
-          Startpage: q => `https://www.startpage.com/search?q=${q}`,
-          Brave: q => `https://search.brave.com/search?q=${q}`,
-          Swisscows: q => `https://swisscows.com/web?query=${q}`,
-          Gigablast: q => `https://www.gigablast.com/search?q=${q}`,
-          SearchEncrypt: q => `https://www.searchencrypt.com/search#?q=${q}`
-        },
-        news: {
-          Clarín: q => `https://www.clarin.com/buscar/${q}`,
-          'La Nación': q => `https://www.lanacion.com.ar/buscador/?query=${q}`,
-          Infobae: q => `https://www.infobae.com/buscador/?s=${q}`,
-          'Página 12': q => `https://www.pagina12.com.ar/buscar?q=${q}`,
-          Perfil: q => `https://www.perfil.com/busqueda/?q=${q}`,
-          'Diario Popular': q => `https://www.diariopopular.com.ar/buscar?search=${q}`,
-          'Ámbito Financiero': q => `https://www.ambito.com/buscar/?q=${q}`,
-          'La Prensa': q => `https://www.laprensa.com.ar/buscador/?texto=${q}`,
-          'El Cronista': q => `https://www.cronista.com/search/?q=${q}`,
-          MDZ: q => `https://www.mdzol.com/buscar/?q=${q}`,
-          'El Destape': q => `https://www.eldestapeweb.com/buscar/${q}`,
-          Crónica: q => `https://www.cronica.com.ar/buscar/${q}`,
-          'El Tribuno': q => `https://www.eltribuno.com/buscar?q=${q}`,
-          'La Voz': q => `https://www.lavoz.com.ar/buscar_index.php?word=${q}`,
-          'El Día': q => `https://www.eldia.com/search?q=${q}`,
-          TN: q => `https://tn.com.ar/buscar/?q=${q}`
-        },
-        images: {
-          'Google Imágenes': q => `https://www.google.com/search?q=${q}&tbm=isch`,
-          'Bing Imágenes': q => `https://www.bing.com/images/search?q=${q}`,
-          Pixabay: q => `https://pixabay.com/images/search/${q}`,
-          Unsplash: q => `https://unsplash.com/s/photos/${q}`,
-          Pexels: q => `https://www.pexels.com/search/${q}`,
-          Shutterstock: q => `https://www.shutterstock.com/search/${q}`,
-          'Getty Images': q => `https://www.gettyimages.com/photos/${q}`,
-          TinEye: q => `https://tineye.com/search?url=${q}`,
-          'Yandex Images': q => `https://yandex.com/images/search?text=${q}`
-        },
-        videos: {
-          YouTube: q => `https://www.youtube.com/results?search_query=${q}`,
-          Vimeo: q => `https://vimeo.com/search?q=${q}`,
-          Dailymotion: q => `https://www.dailymotion.com/search/${q}`,
-          TikTok: q => `https://www.tiktok.com/search?q=${q}`,
-          Twitch: q => `https://www.twitch.tv/search?term=${q}`,
-          Metacafe: q => `http://www.metacafe.com/search/${q}`,
-          Vevo: q => `https://www.vevo.com/search/${q}`
-        },
-        jobs: {
-          LinkedIn: q => `https://www.linkedin.com/jobs/search?keywords=${q}`,
-          Indeed: q => `https://ar.indeed.com/jobs?q=${q}`,
-          'Zona Jobs': q => `https://www.zonajobs.com.ar/empleos-busqueda-${q}.html`,
-          Bumeran: q => `https://www.bumeran.com.ar/empleos-busqueda-${q}.html`,
-          Computrabajo: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}`,
-          Glassdoor: q => `https://www.glassdoor.com.ar/Empleo/empleos-${q}.htm`,
-          'Empleos Clarín': q => `https://empleos.clarin.com/postulantes/avisos/trabajo/AL${q}`,
-          SimplyHired: q => `https://www.simplyhired.com.ar/search?q=${q}`,
-          Jooble: q => `https://ar.jooble.org/SearchResult?ukw=${q}`,
-          Jobrapido: q => `https://ar.jobrapido.com/?w=${q}`,
-          'Trabajando.com': q => `https://www.trabajando.com/busqueda/trabajos?q=${q}`,
-          Monster: q => `https://www.monster.com.ar/buscar-empleo/?q=${q}`,
-          'Talent.com': q => `https://www.talent.com/buscar?q=${q}`
-        },
-        shopping: {
-          'Mercado Libre': q => `https://listado.mercadolibre.com.ar/${q}`,
-          Amazon: q => `https://www.amazon.com/s?k=${q}`,
-          eBay: q => `https://www.ebay.com/sch/i.html?_nkw=${q}`,
-          AliExpress: q => `https://www.aliexpress.com/wholesale?SearchText=${q}`,
-          OLX: q => `https://www.olx.com.ar/items/q-${q}`,
-          Linio: q => `https://www.linio.com.ar/catalog?sc=LA&search=${q}`,
-          Shein: q => `https://www.shein.com.mx/search?keyword=${q}`,
-          Alibaba: q => `https://www.alibaba.com/trade/search?fsb=y&IndexArea=product_en&SearchText=${q}`,
-          Wish: q => `https://www.wish.com/search/${q}`,
-          Taobao: q => `https://world.taobao.com/search/search.htm?q=${q}`
-        },
-        maps: {
-          'Google Maps': q => `https://www.google.com/maps/search/${q}`,
-          'Bing Maps': q => `https://www.bing.com/maps?q=${q}`,
-          'Apple Maps': q => `https://maps.apple.com/?q=${q}`,
-          OpenStreetMap: q => `https://www.openstreetmap.org/search?query=${q}`,
-          Waze: q => `https://www.waze.com/search?q=${q}`,
-          MapQuest: q => `https://www.mapquest.com/search/results?query=${q}`,
-          'Here WeGo': q => `https://wego.here.com/search/${q}`,
-          'TomTom Maps': q => `https://map.tomtom.com/en/search/${q}`,
-          Komoot: q => `https://www.komoot.com/search?query=${q}`,
-          'Geoportal Argentina': q => `https://www.geoportal.gob.ar/busqueda?search=${q}`,
-          Mapillary: q => `https://www.mapillary.com/app/?pKey=${q}`,
-          'Mapy.cz': q => `https://mapy.cz/zakladni?query=${q}`,
-          'Sygic Maps': q => `https://maps.sygic.com/?q=${q}`
-        }
+        web: { Google: q => `https://www.google.com/search?q=${q}`, Bing: q => `https://www.bing.com/search?q=${q}`, DuckDuckGo: q => `https://duckduckgo.com/?q=${q}`, Brave: q => `https://search.brave.com/search?q=${q}`, Ecosia: q => `https://www.ecosia.org/search?q=${q}`, Startpage: q => `https://www.startpage.com/search?q=${q}`, Qwant: q => `https://www.qwant.com/?q=${q}`, Swisscows: q => `https://swisscows.com/web?query=${q}`, },
+        news: { 'Google News': q => `https://news.google.com/search?q=${q}`, Clarín: q => `https://www.clarin.com/buscar/${q}`, 'La Nación': q => `https://www.lanacion.com.ar/buscador/?query=${q}`, Infobae: q => `https://www.infobae.com/buscador/?s=${q}`, 'Página 12': q => `https://www.pagina12.com.ar/buscar?q=${q}`, TN: q => `https://tn.com.ar/buscar/?q=${q}`, 'Ámbito': q => `https://www.ambito.com/buscar/?q=${q}`, 'El Cronista': q => `https://www.cronista.com/search/?q=${q}`, },
+        images: { 'Google': q => `https://www.google.com/search?q=${q}&tbm=isch`, 'Bing': q => `https://www.bing.com/images/search?q=${q}`, Unsplash: q => `https://unsplash.com/s/photos/${q}`, Pexels: q => `https://www.pexels.com/search/${q}`, Pixabay: q => `https://pixabay.com/images/search/${q}`, 'Yandex': q => `https://yandex.com/images/search?text=${q}` },
+        videos: { YouTube: q => `https://www.youtube.com/results?search_query=${q}`, Vimeo: q => `https://vimeo.com/search?q=${q}`, Dailymotion: q => `https://www.dailymotion.com/search/${q}`, TikTok: q => `https://www.tiktok.com/search?q=${q}`, Twitch: q => `https://www.twitch.tv/search?term=${q}`, },
+        jobs: { LinkedIn: q => `https://www.linkedin.com/jobs/search?keywords=${q}`, Indeed: q => `https://ar.indeed.com/jobs?q=${q}`, 'Zona Jobs': q => `https://www.zonajobs.com.ar/empleos-busqueda-${q}.html`, Bumeran: q => `https://www.bumeran.com.ar/empleos-busqueda-${q}.html`, Computrabajo: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}`, Glassdoor: q => `https://www.glassdoor.com.ar/Empleo/empleos-${q}.htm`, },
+        shopping: { 'Mercado Libre': q => `https://listado.mercadolibre.com.ar/${q}`, Amazon: q => `https://www.amazon.com/s?k=${q}`, eBay: q => `https://www.ebay.com/sch/i.html?_nkw=${q}`, AliExpress: q => `https://es.aliexpress.com/wholesale?SearchText=${q}`, 'Google': q => `https://www.google.com/search?q=${q}&tbm=shop`, },
+        maps: { 'Google Maps': q => `https://www.google.com/maps/search/${q}`, 'Apple Maps': q => `https://maps.apple.com/?q=${q}`, 'Bing Maps': q => `https://www.bing.com/maps?q=${q}`, OpenStreetMap: q => `https://www.openstreetmap.org/search?query=${q}`, Waze: q => `https://www.waze.com/ul?q=${q}`, }
       };
-      const query = document.getElementById('query');
-      const category = document.getElementById('category');
-      const buttons = document.getElementById('buttons');
-      function render() {
-        const term = encodeURIComponent(query.value.trim());
-        buttons.innerHTML = '';
-        const list = engines[category.value] || {};
-        Object.entries(list).forEach(([name, fn]) => {
+
+      // --- REFERENCIAS A ELEMENTOS DEL DOM ---
+      const queryInput = document.getElementById('query');
+      const categorySelect = document.getElementById('category');
+      const buttonsContainer = document.getElementById('buttons');
+      const buttonsPlaceholder = document.getElementById('buttons-placeholder');
+      const clearQueryBtn = document.getElementById('clear-query');
+
+      /**
+       * Renderiza los botones de búsqueda basados en la categoría y el término de búsqueda actuales.
+       */
+      function renderButtons() {
+        const query = queryInput.value.trim();
+        const category = categorySelect.value;
+        const currentEngines = engines[category] || {};
+
+        buttonsContainer.innerHTML = '';
+        clearQueryBtn.style.display = query ? 'block' : 'none';
+
+        if (!query) {
+          buttonsPlaceholder.classList.remove('opacity-0');
+          return;
+        }
+        
+        buttonsPlaceholder.classList.add('opacity-0');
+        
+        Object.entries(currentEngines).forEach(([name, urlFunction], index) => {
           const btn = document.createElement('button');
           btn.textContent = name;
-          btn.disabled = !term;
-          btn.className = 'bg-gray-700 text-gray-100 border border-teal-500 rounded-lg p-2 hover:bg-teal-600 transition-colors duration-200 text-sm';
-          btn.onclick = () => window.open(fn(term), '_self');
-          buttons.appendChild(btn);
+          btn.className = 'bg-gray-700/50 text-gray-200 border border-gray-600 rounded-lg p-3 hover:bg-teal-500 hover:text-white hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 transition-all text-sm font-medium transform active:scale-95 button-pop-in';
+          // Aplicamos un retraso escalonado a la animación
+          btn.style.animationDelay = `${index * 50}ms`;
+          
+          btn.onclick = () => {
+            const searchTerm = encodeURIComponent(query);
+            const url = urlFunction(searchTerm);
+            localStorage.setItem('lastSearchQuery', query);
+            window.open(url, '_blank');
+          };
+          buttonsContainer.appendChild(btn);
         });
       }
-      query.addEventListener('input', render);
-      category.addEventListener('change', render);
-      document.addEventListener('DOMContentLoaded', render);
+
+      /**
+       * Carga la última búsqueda y categoría desde localStorage.
+       */
+      function loadLastState() {
+        queryInput.value = localStorage.getItem('lastSearchQuery') || '';
+        categorySelect.value = localStorage.getItem('lastSearchCategory') || 'web';
+      }
+
+      /**
+       * Limpia el campo de búsqueda y actualiza la UI.
+       */
+      function clearQuery() {
+          queryInput.value = '';
+          queryInput.focus();
+          renderButtons();
+      }
+
+      /**
+       * Inicializa los event listeners.
+       */
+      function init() {
+        loadLastState();
+        renderButtons();
+
+        queryInput.addEventListener('input', renderButtons);
+        clearQueryBtn.addEventListener('click', clearQuery);
+        categorySelect.addEventListener('change', () => {
+          localStorage.setItem('lastSearchCategory', categorySelect.value);
+          renderButtons();
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', init);
     })();
   </script>
 </body>

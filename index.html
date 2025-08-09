@@ -1,19 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Sparkles, ChevronDown, ExternalLink, History, Trash2, ClipboardCopy, Info } from "lucide-react";
+import { Search, X, Sparkles, ChevronDown, ExternalLink, History, Trash2, ClipboardCopy, Info, Check, AlertTriangle, BookOpen, Utensils, Plane, Users } from "lucide-react";
 
-// Nota: Este componente asume que Tailwind CSS está habilitado en tu proyecto.
-// Puedes usarlo directamente en tu aplicación React.
-// Incluye características como múltiples motores de búsqueda, accesibilidad, atajos de teclado,
-// historial de búsquedas recientes, sugerencias de operadores de búsqueda y animaciones.
+// NOTE: This component assumes Tailwind CSS is enabled in your project.
+// It can be used directly in your React application.
+// This enhanced version includes more search engines and categories, a "Search All" feature,
+// improved UI/UX with visual feedback, and other refinements.
 
-// --- Definición de Tipos ---
+// --- Type Definitions ---
 
 type Engines = Record<string, Record<string, (q: string) => string>>;
-
 type CategoryKey = keyof typeof ENGINES;
 
-// --- Motores de Búsqueda (Ampliados y adaptados para la región) ---
+// --- Search Engines (Expanded and adapted for the region) ---
 const ENGINES: Engines = {
   web: {
     Google: (q) => `https://www.google.com/search?q=${q}`,
@@ -27,13 +26,14 @@ const ENGINES: Engines = {
     Yahoo: (q) => `https://search.yahoo.com/search?p=${q}`,
     Kagi: (q) => `https://kagi.com/search?q=${q}`,
     Mojeek: (q) => `https://www.mojeek.com/search?q=${q}`,
+    Perplexity: (q) => `https://www.perplexity.ai/search?q=${q}`,
   },
   news: {
     "Google News": (q) => `https://news.google.com/search?q=${q}`,
     "Bing News": (q) => `https://www.bing.com/news/search?q=${q}`,
     Reuters: (q) => `https://www.reuters.com/site-search/?query=${q}`,
     BBC: (q) => `https://www.bbc.co.uk/search?q=${q}`,
-    "The Guardian": (q) => `https://www.theguardian.com/sitemaps?q=${q}`,
+    "Associated Press": (q) => `https://apnews.com/search?q=${q}`,
     "New York Times": (q) => `https://www.nytimes.com/search?query=${q}`,
     Clarín: (q) => `https://www.clarin.com/buscar/${q}`,
     "La Nación": (q) => `https://www.lanacion.com.ar/buscador/?query=${q}`,
@@ -41,9 +41,6 @@ const ENGINES: Engines = {
     "Página 12": (q) => `https://www.pagina12.com.ar/buscar?q=${q}`,
     TN: (q) => `https://tn.com.ar/buscar/?q=${q}`,
     "Ámbito": (q) => `https://www.ambito.com/buscar/?q=${q}`,
-    "El Cronista": (q) => `https://www.cronista.com/search/?q=${q}`,
-    Perfil: (q) => `https://www.perfil.com/buscador/?q=${q}`,
-    DiarioAR: (q) => `https://www.eldiarioar.com/buscar/?q=${q}`,
   },
   images: {
     Google: (q) => `https://www.google.com/search?q=${q}&tbm=isch`,
@@ -63,15 +60,6 @@ const ENGINES: Engines = {
     Twitch: (q) => `https://www.twitch.tv/search?term=${q}`,
     "Internet Archive": (q) => `https://archive.org/search.php?query=${q}`,
   },
-  jobs: {
-    LinkedIn: (q) => `https://www.linkedin.com/jobs/search?keywords=${q}`,
-    Indeed: (q) => `https://ar.indeed.com/jobs?q=${q}`,
-    "Zona Jobs": (q) => `https://www.zonajobs.com.ar/empleos-busqueda-${q}.html`,
-    Bumeran: (q) => `https://www.bumeran.com.ar/empleos-busqueda-${q}.html`,
-    Computrabajo: (q) => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}`,
-    Glassdoor: (q) => `https://www.glassdoor.com.ar/Empleo/empleos-${q}.htm`,
-    Jooble: (q) => `https://ar.jooble.org/trabajo-${q}`,
-  },
   shopping: {
     "Mercado Libre": (q) => `https://listado.mercadolibre.com.ar/${q}`,
     Amazon: (q) => `https://www.amazon.com/s?k=${q}`,
@@ -80,7 +68,16 @@ const ENGINES: Engines = {
     "Google Shopping": (q) => `https://www.google.com/search?q=${q}&tbm=shop`,
     Frávega: (q) => `https://www.fravega.com/l/?keyword=${q}`,
     Musimundo: (q) => `https://www.musimundo.com/busqueda?q=${q}`,
-    Garbarino: (q) => `https://www.garbarino.com/q/${q}`,
+    "Tiendamia": (q) => `https://tiendamia.com/ar/search?q=${q}`,
+  },
+  jobs: {
+    LinkedIn: (q) => `https://www.linkedin.com/jobs/search?keywords=${q}`,
+    Indeed: (q) => `https://ar.indeed.com/jobs?q=${q}`,
+    "Zona Jobs": (q) => `https://www.zonajobs.com.ar/empleos-busqueda-${q}.html`,
+    Bumeran: (q) => `https://www.bumeran.com.ar/empleos-busqueda-${q}.html`,
+    Computrabajo: (q) => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}`,
+    Glassdoor: (q) => `https://www.glassdoor.com.ar/Empleo/empleos-${q}.htm`,
+    Jooble: (q) => `https://ar.jooble.org/trabajo-${q}`,
   },
   maps: {
     "Google Maps": (q) => `https://www.google.com/maps/search/${q}`,
@@ -98,40 +95,67 @@ const ENGINES: Engines = {
     MDN: (q) => `https://developer.mozilla.org/search?q=${q}`,
     "Go Packages": (q) => `https://pkg.go.dev/search?q=${q}`,
     Rust: (q) => `https://crates.io/search?q=${q}`,
+    DockerHub: (q) => `https://hub.docker.com/search?q=${q}`,
   },
+  social: {
+      "X (Twitter)": (q) => `https://twitter.com/search?q=${q}`,
+      Reddit: (q) => `https://www.reddit.com/search/?q=${q}`,
+      Facebook: (q) => `https://www.facebook.com/search/top/?q=${q}`,
+      Instagram: (q) => `https://www.instagram.com/explore/tags/${q}/`,
+      Pinterest: (q) => `https://www.pinterest.com/search/pins/?q=${q}`,
+  },
+  academic: {
+      "Google Scholar": (q) => `https://scholar.google.com/scholar?q=${q}`,
+      "Microsoft Academic": (q) => `https://academic.microsoft.com/search?q=${q}`,
+      JSTOR: (q) => `https://www.jstor.org/action/doBasicSearch?Query=${q}`,
+      "Academia.edu": (q) => `https://www.academia.edu/search?q=${q}`,
+      ResearchGate: (q) => `https://www.researchgate.net/search.Search.html?query=${q}`,
+      SciELO: (q) => `https://search.scielo.org/?q=${q}`,
+  },
+  travel: {
+      "Google Flights": (q) => `https://www.google.com/flights?q=${q}`,
+      Skyscanner: (q) => `https://www.skyscanner.net/search/flights?q=${q}`,
+      "Booking.com": (q) => `https://www.booking.com/searchresults.html?ss=${q}`,
+      Airbnb: (q) => `https://www.airbnb.com/s/${q}`,
+      Tripadvisor: (q) => `https://www.tripadvisor.com/Search?q=${q}`,
+      "Despegar.com": (q) => `https://www.despegar.com.ar/search/global/${q}`,
+  },
+  recipes: {
+      YouTube: (q) => `https://www.youtube.com/results?search_query=${q}+receta`,
+      Allrecipes: (q) => `https://www.allrecipes.com/search/results/?search=${q}`,
+      "Kiwilimón": (q) => `https://www.kiwilimon.com/busqueda?s=${q}`,
+      "Tastemade": (q) => `https://www.tastemade.com/search?q=${q}`,
+      "Paulina Cocina": (q) => `https://www.paulinacocina.net/?s=${q}`,
+  }
 };
 
-const CATEGORIES: { key: CategoryKey; label: string; icon: string }[] = [
-  { key: "web", label: "Web", icon: "🌐" },
-  { key: "news", label: "Noticias", icon: "📰" },
-  { key: "images", label: "Imágenes", icon: "🖼️" },
-  { key: "videos", label: "Videos", icon: "🎬" },
-  { key: "jobs", label: "Empleos", icon: "💼" },
-  { key: "shopping", label: "Compras", icon: "🛒" },
-  { key: "maps", label: "Mapas", icon: "🗺️" },
-  { key: "dev", label: "Dev", icon: "💻" },
+const CATEGORIES: { key: CategoryKey; label: string; icon: React.ReactNode }[] = [
+  { key: "web", label: "Web", icon: <Search className="h-4 w-4" /> },
+  { key: "news", label: "Noticias", icon: <span className="text-lg">📰</span> },
+  { key: "images", label: "Imágenes", icon: <span className="text-lg">🖼️</span> },
+  { key: "videos", label: "Videos", icon: <span className="text-lg">🎬</span> },
+  { key: "shopping", label: "Compras", icon: <span className="text-lg">🛒</span> },
+  { key: "jobs", label: "Empleos", icon: <span className="text-lg">💼</span> },
+  { key: "maps", label: "Mapas", icon: <span className="text-lg">🗺️</span> },
+  { key: "dev", label: "Dev", icon: <span className="text-lg">💻</span> },
+  { key: "social", label: "Social", icon: <Users className="h-4 w-4" /> },
+  { key: "academic", label: "Académico", icon: <BookOpen className="h-4 w-4" /> },
+  { key: "travel", label: "Viajes", icon: <Plane className="h-4 w-4" /> },
+  { key: "recipes", label: "Recetas", icon: <Utensils className="h-4 w-4" /> },
 ] as const;
 
 const OPERATOR_CHIPS = [
-  '"frase exacta"',
-  "-palabra",
-  "palabra1 AND palabra2",
-  "palabra1 OR palabra2",
-  "site:dominio.com",
-  "filetype:pdf",
-  "intitle:palabra",
-  "inurl:palabra",
-  "intext:palabra",
-  "before:2024-01-01",
-  "after:2024-01-01",
+  '"frase exacta"', "-palabra", "palabra1 AND palabra2", "palabra1 OR palabra2",
+  "site:dominio.com", "filetype:pdf", "intitle:palabra", "inurl:palabra",
+  "before:2024-01-01", "after:2024-01-01",
 ];
 
-// --- Funciones de Utilidad ---
+// --- Utility Functions ---
 const openUrlSafe = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
 const enc = (s: string) => encodeURIComponent(s.trim());
 const cls = (...v: Array<string | false | null | undefined>) => v.filter(Boolean).join(" ");
 
-// --- Componentes de la UI ---
+// --- UI Components ---
 
 function Header() {
   return (
@@ -142,7 +166,7 @@ function Header() {
         transition={{ duration: 0.45 }}
         className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-500"
       >
-        Buscador Inteligente
+        Smart Search Pro
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 6 }}
@@ -150,7 +174,7 @@ function Header() {
         transition={{ duration: 0.35, delay: 0.1 }}
         className="text-gray-400 mt-1"
       >
-        Selecciona una categoría y un motor para iniciar tu búsqueda.
+        Tu centro de búsqueda para toda la web.
       </motion.p>
     </header>
   );
@@ -169,11 +193,14 @@ function CategorySelect({ value, onChange }: { value: CategoryKey; onChange: (v:
         >
           {CATEGORIES.map((c) => (
             <option key={c.key} value={c.key}>
-              {c.icon} {c.label}
+              {c.label}
             </option>
           ))}
         </select>
-        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none flex items-center gap-2">
+           {CATEGORIES.find(c => c.key === value)?.icon}
+           <ChevronDown className="h-4 w-4" />
+        </div>
       </div>
     </label>
   );
@@ -263,15 +290,16 @@ function Recents({ items, onUse, onClear }: { items: string[]; onUse: (q: string
   );
 }
 
-// --- Componente Principal ---
+// --- Main Component ---
 
 export default function SmartSearchApp() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<CategoryKey>("web");
   const [recents, setRecents] = useState<string[]>([]);
+  const [isCopied, setIsCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Cargar estado desde localStorage al montar el componente
+  // Load state from localStorage on mount
   useEffect(() => {
     setQuery(localStorage.getItem("smartsearch:lastQuery") || "");
     setCategory(((localStorage.getItem("smartsearch:lastCat") as CategoryKey) || "web"));
@@ -281,7 +309,7 @@ export default function SmartSearchApp() {
     } catch {}
   }, []);
 
-  // Guardar estado en localStorage cuando cambia
+  // Save state to localStorage on change
   useEffect(() => {
     localStorage.setItem("smartsearch:lastQuery", query);
   }, [query]);
@@ -290,15 +318,9 @@ export default function SmartSearchApp() {
   }, [category]);
 
   const categoryEngines = useMemo(() => ENGINES[category], [category]);
-
   const hasQuery = query.trim().length > 0;
 
-  const handleOpen = (engineName: string) => {
-    const fn = categoryEngines[engineName];
-    if (!fn) return;
-    const url = fn(enc(query));
-    openUrlSafe(url);
-    // Guardar en búsquedas recientes
+  const addQueryToRecents = () => {
     if (hasQuery) {
       setRecents((prev) => {
         const next = [query, ...prev.filter((x) => x !== query)].slice(0, 12);
@@ -308,9 +330,28 @@ export default function SmartSearchApp() {
     }
   };
 
+  const handleOpen = (engineName: string) => {
+    const fn = categoryEngines[engineName];
+    if (!fn) return;
+    const url = fn(enc(query));
+    openUrlSafe(url);
+    addQueryToRecents();
+  };
+
+  const handleSearchAll = () => {
+    const engineCount = Object.keys(categoryEngines).length;
+    if (window.confirm(`Esto abrirá ${engineCount} pestañas. ¿Continuar?`)) {
+        Object.values(categoryEngines).forEach(fn => {
+            const url = fn(enc(query));
+            openUrlSafe(url);
+        });
+        addQueryToRecents();
+    }
+  };
+
   const clearQuery = () => setQuery("");
 
-  // Atajos de teclado
+  // Keyboard shortcuts
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const isMac = navigator.platform.toUpperCase().includes("MAC");
@@ -323,9 +364,8 @@ export default function SmartSearchApp() {
         if (query) setQuery("");
       }
       if (e.key === "Enter" && document.activeElement === inputRef.current) {
-        // Abrir en el primer motor de la lista
-        const first = Object.values(categoryEngines)[0];
-        if (first && hasQuery) openUrlSafe(first(enc(query)));
+        const firstEngineName = Object.keys(categoryEngines)[0];
+        if (firstEngineName && hasQuery) handleOpen(firstEngineName);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -339,15 +379,19 @@ export default function SmartSearchApp() {
   };
 
   const copyQuery = async () => {
+    if (!query) return;
     try {
       await navigator.clipboard.writeText(query);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy query: ", err);
+      alert("No se pudo copiar el texto.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 p-4 selection:bg-teal-500 selection:text-white">
+    <div className="min-h-screen bg-gray-900 text-gray-200 p-4 font-sans selection:bg-teal-500 selection:text-white">
       <div className="w-full max-w-3xl mx-auto">
         <Header />
 
@@ -357,11 +401,9 @@ export default function SmartSearchApp() {
           transition={{ duration: 0.35 }}
           className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 p-6 flex flex-col gap-5"
         >
-          {/* Barra de búsqueda */}
+          {/* Search Bar */}
           <div className="relative" role="search">
-            <label htmlFor="query" className="sr-only">
-              Buscar
-            </label>
+            <label htmlFor="query" className="sr-only">Buscar</label>
             <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-80">
               <Search className="h-5 w-5 text-gray-400" aria-hidden />
             </div>
@@ -380,10 +422,21 @@ export default function SmartSearchApp() {
               <button
                 onClick={copyQuery}
                 title="Copiar"
-                className="p-1 rounded hover:bg-gray-700/60"
+                className="p-1 rounded hover:bg-gray-700/60 disabled:opacity-50"
                 aria-label="Copiar búsqueda"
+                disabled={!hasQuery || isCopied}
               >
-                <ClipboardCopy className="h-4 w-4" />
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={isCopied ? "check" : "copy"}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {isCopied ? <Check className="h-4 w-4 text-teal-400" /> : <ClipboardCopy className="h-4 w-4" />}
+                  </motion.div>
+                </AnimatePresence>
               </button>
               {hasQuery && (
                 <button
@@ -398,43 +451,63 @@ export default function SmartSearchApp() {
             </div>
           </div>
           <p id="query-help" className="text-xs text-gray-400 -mt-1">
-            Atajos: <kbd className="px-1 rounded bg-gray-700">Ctrl</kbd>+
-            <kbd className="px-1 rounded bg-gray-700">K</kbd> enfoca •
-            <kbd className="px-1 rounded bg-gray-700">Enter</kbd> abre el primer motor •
-            <kbd className="px-1 rounded bg-gray-700">Esc</kbd> limpia
+            Atajos: <kbd className="px-1.5 py-0.5 text-xs rounded bg-gray-700 border-b-2 border-gray-600">Ctrl</kbd>+
+            <kbd className="px-1.5 py-0.5 text-xs rounded bg-gray-700 border-b-2 border-gray-600">K</kbd> enfoca •
+            <kbd className="px-1.5 py-0.5 text-xs rounded bg-gray-700 border-b-2 border-gray-600">Enter</kbd> busca •
+            <kbd className="px-1.5 py-0.5 text-xs rounded bg-gray-700 border-b-2 border-gray-600">Esc</kbd> limpia
           </p>
 
-          {/* Selector de Categoría */}
+          {/* Category Selector */}
           <CategorySelect value={category} onChange={setCategory} />
 
-          {/* Chips de Operadores */}
+          {/* Operator Chips */}
           <div>
             <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
-              <Sparkles className="h-4 w-4" />
-              Sugerencias rápidas
+              <Sparkles className="h-4 w-4" /> Sugerencias rápidas
             </div>
             <OperatorChips onInsert={insertChip} />
           </div>
 
-          {/* Grilla de Motores de Búsqueda */}
-          <div className="border-t border-gray-700 pt-5 min-h-[96px]">
-            {!hasQuery ? (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center text-gray-500"
-              >
-                Escribe algo para ver los motores de búsqueda.
-              </motion.p>
-            ) : (
-              <EngineGrid
-                engines={categoryEngines}
-                onOpen={(name) => handleOpen(name)}
-              />
-            )}
+          {/* Search Engines Grid */}
+          <div className="border-t border-gray-700 pt-5 min-h-[140px]">
+             <AnimatePresence mode="wait">
+                {!hasQuery ? (
+                  <motion.div
+                    key="prompt"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-center text-gray-500 flex flex-col items-center justify-center h-full pt-4"
+                  >
+                    <Search className="h-10 w-10 mb-2 opacity-30"/>
+                    <p>Escribe algo para ver los motores de búsqueda.</p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="engines"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <div className="flex justify-end mb-3">
+                        <button 
+                            onClick={handleSearchAll}
+                            className="inline-flex items-center gap-2 text-sm font-semibold text-teal-300 hover:text-teal-200 bg-teal-900/50 hover:bg-teal-900/80 border border-teal-800 rounded-lg px-4 py-2 transition-all active:scale-95"
+                        >
+                            <Sparkles className="h-4 w-4" />
+                            Buscar en todos ({Object.keys(categoryEngines).length})
+                        </button>
+                    </div>
+                    <EngineGrid
+                      engines={categoryEngines}
+                      onOpen={(name) => handleOpen(name)}
+                    />
+                  </motion.div>
+                )}
+             </AnimatePresence>
           </div>
 
-          {/* Búsquedas Recientes */}
+          {/* Recent Searches */}
           <Recents
             items={recents}
             onUse={(q) => setQuery(q)}
@@ -444,7 +517,7 @@ export default function SmartSearchApp() {
             }}
           />
 
-          {/* Ayuda Colapsable */}
+          {/* Help Section */}
           <details className="text-sm text-gray-300/90 mt-2">
             <summary className="cursor-pointer text-teal-400 hover:text-teal-300 transition-colors inline-flex items-center gap-1">
               <Info className="h-4 w-4" /> Ayuda: Operadores de búsqueda
@@ -453,30 +526,19 @@ export default function SmartSearchApp() {
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
                 <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">"frase exacta"</code> – Frase exacta</li>
                 <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">-palabra</code> – Excluye una palabra</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">palabra1 AND palabra2</code> – Ambas palabras</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">palabra1 OR palabra2</code> – Una u otra palabra</li>
                 <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">site:dominio.com</code> – Dominio específico</li>
                 <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">filetype:pdf</code> – Tipo de archivo</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">ext:pdf</code> – Extensión de archivo</li>
                 <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">intitle:palabra</code> – Palabra en el título</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allintitle:palabras</code> – Todas en el título</li>
                 <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">inurl:palabra</code> – Palabra en la URL</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allinurl:palabras</code> – Todas en la URL</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">intext:palabra</code> – Palabra en el texto</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allintext:palabras</code> – Todas en el texto</li>
                 <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">related:URL</code> – Sitios relacionados</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">cache:URL</code> – Versión en caché</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">define:palabra</code> – Definición</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">location:país</code> – Geolocalización</li>
                 <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">before:AAAA-MM-DD</code> – Antes de fecha</li>
-                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">after:AAAA-MM-DD</code> – Después de fecha</li>
               </ul>
             </div>
           </details>
         </motion.main>
 
-        <footer className="mt-6 text-center text-xs text-gray-500">
-          Hecho con <span className="text-teal-400">♥</span>. Consejos: usa comillas para coincidencias exactas y limita por sitio con <code className="bg-gray-800 px-1 rounded">site:</code>.
+        <footer className="mt-8 text-center text-xs text-gray-500">
+          Hecho con <span className="text-teal-400">♥</span>. Potencia tus búsquedas con operadores y categorías.
         </footer>
       </div>
     </div>

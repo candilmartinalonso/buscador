@@ -1,245 +1,479 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buscador Inteligente Animado</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    /* Usamos la fuente Inter y añadimos algunas transiciones suaves */
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #111827; /* bg-gray-900 */
-    }
-    .transition-all {
-      transition: all 0.3s ease-in-out;
-    }
-    /* Estilo para el scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #1f2937; /* bg-gray-800 */
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #14b8a6; /* teal-500 */
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #0d9488; /* teal-600 */
-    }
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, X, Sparkles, ChevronDown, ExternalLink, History, Trash2, ClipboardCopy, Info } from "lucide-react";
 
-    /* Clases para animación de entrada */
-    .fade-in-up {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 0.6s ease-out forwards;
-    }
+// Nota: Este componente asume Tailwind habilitado.
+// Puedes usarlo tal cual en tu app. Exporta por defecto un componente.
+// Incluye: más motores, accesibilidad, atajos, recientes, chips de operadores y animaciones.
 
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+// --- Tipos ---
 
-    /* Animación para los botones */
-    .button-pop-in {
-        opacity: 0;
-        transform: scale(0.95);
-        animation: popIn 0.4s ease-out forwards;
-    }
+type Engines = Record<string, Record<string, (q: string) => string>>;
 
-    @keyframes popIn {
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
+type CategoryKey = keyof typeof ENGINES;
 
-    /* Animación para el <details> */
-    details[open] summary ~ * {
-        animation: fadeIn 0.4s ease-out;
-    }
+// --- Motores (ampliados y local-friendly) ---
+const ENGINES: Engines = {
+  web: {
+    Google: (q) => `https://www.google.com/search?q=${q}`,
+    Bing: (q) => `https://www.bing.com/search?q=${q}`,
+    DuckDuckGo: (q) => `https://duckduckgo.com/?q=${q}`,
+    Brave: (q) => `https://search.brave.com/search?q=${q}`,
+    Ecosia: (q) => `https://www.ecosia.org/search?q=${q}`,
+    Startpage: (q) => `https://www.startpage.com/search?q=${q}`,
+    Qwant: (q) => `https://www.qwant.com/?q=${q}`,
+    Swisscows: (q) => `https://swisscows.com/web?query=${q}`,
+    Yahoo: (q) => `https://search.yahoo.com/search?p=${q}`,
+    Kagi: (q) => `https://kagi.com/search?q=${q}`,
+    Mojeek: (q) => `https://www.mojeek.com/search?q=${q}`,
+  },
+  news: {
+    "Google News": (q) => `https://news.google.com/search?q=${q}`,
+    "Bing News": (q) => `https://www.bing.com/news/search?q=${q}`,
+    Reuters: (q) => `https://www.reuters.com/site-search/?query=${q}`,
+    BBC: (q) => `https://www.bbc.co.uk/search?q=${q}`,
+    "The Guardian": (q) => `https://www.theguardian.com/sitemaps?q=${q}`,
+    "New York Times": (q) => `https://www.nytimes.com/search?query=${q}`,
+    Clarín: (q) => `https://www.clarin.com/buscar/${q}`,
+    "La Nación": (q) => `https://www.lanacion.com.ar/buscador/?query=${q}`,
+    Infobae: (q) => `https://www.infobae.com/buscador/?s=${q}`,
+    "Página 12": (q) => `https://www.pagina12.com.ar/buscar?q=${q}`,
+    TN: (q) => `https://tn.com.ar/buscar/?q=${q}`,
+    "Ámbito": (q) => `https://www.ambito.com/buscar/?q=${q}`,
+    "El Cronista": (q) => `https://www.cronista.com/search/?q=${q}`,
+    Perfil: (q) => `https://www.perfil.com/buscador/?q=${q}`,
+    DiarioAR: (q) => `https://www.eldiarioar.com/buscar/?q=${q}`,
+  },
+  images: {
+    Google: (q) => `https://www.google.com/search?q=${q}&tbm=isch`,
+    Bing: (q) => `https://www.bing.com/images/search?q=${q}`,
+    Yandex: (q) => `https://yandex.com/images/search?text=${q}`,
+    Unsplash: (q) => `https://unsplash.com/s/photos/${q}`,
+    Pexels: (q) => `https://www.pexels.com/search/${q}`,
+    Pixabay: (q) => `https://pixabay.com/images/search/${q}`,
+    Flickr: (q) => `https://www.flickr.com/search/?text=${q}`,
+    Imgur: (q) => `https://imgur.com/search?q=${q}`,
+  },
+  videos: {
+    YouTube: (q) => `https://www.youtube.com/results?search_query=${q}`,
+    Vimeo: (q) => `https://vimeo.com/search?q=${q}`,
+    Dailymotion: (q) => `https://www.dailymotion.com/search/${q}`,
+    TikTok: (q) => `https://www.tiktok.com/search?q=${q}`,
+    Twitch: (q) => `https://www.twitch.tv/search?term=${q}`,
+    "Internet Archive": (q) => `https://archive.org/search.php?query=${q}`,
+  },
+  jobs: {
+    LinkedIn: (q) => `https://www.linkedin.com/jobs/search?keywords=${q}`,
+    Indeed: (q) => `https://ar.indeed.com/jobs?q=${q}`,
+    "Zona Jobs": (q) => `https://www.zonajobs.com.ar/empleos-busqueda-${q}.html`,
+    Bumeran: (q) => `https://www.bumeran.com.ar/empleos-busqueda-${q}.html`,
+    Computrabajo: (q) => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}`,
+    Glassdoor: (q) => `https://www.glassdoor.com.ar/Empleo/empleos-${q}.htm`,
+    Jooble: (q) => `https://ar.jooble.org/trabajo-${q}`,
+  },
+  shopping: {
+    "Mercado Libre": (q) => `https://listado.mercadolibre.com.ar/${q}`,
+    Amazon: (q) => `https://www.amazon.com/s?k=${q}`,
+    eBay: (q) => `https://www.ebay.com/sch/i.html?_nkw=${q}`,
+    AliExpress: (q) => `https://es.aliexpress.com/wholesale?SearchText=${q}`,
+    "Google Shopping": (q) => `https://www.google.com/search?q=${q}&tbm=shop`,
+    Frávega: (q) => `https://www.fravega.com/l/?keyword=${q}`,
+    Musimundo: (q) => `https://www.musimundo.com/busqueda?q=${q}`,
+    Garbarino: (q) => `https://www.garbarino.com/q/${q}`,
+  },
+  maps: {
+    "Google Maps": (q) => `https://www.google.com/maps/search/${q}`,
+    "Apple Maps": (q) => `https://maps.apple.com/?q=${q}`,
+    "Bing Maps": (q) => `https://www.bing.com/maps?q=${q}`,
+    OpenStreetMap: (q) => `https://www.openstreetmap.org/search?query=${q}`,
+    Waze: (q) => `https://www.waze.com/ul?q=${q}`,
+    "HERE WeGo": (q) => `https://wego.here.com/search/${q}`,
+  },
+  dev: {
+    GitHub: (q) => `https://github.com/search?q=${q}`,
+    StackOverflow: (q) => `https://stackoverflow.com/search?q=${q}`,
+    npm: (q) => `https://www.npmjs.com/search?q=${q}`,
+    PyPI: (q) => `https://pypi.org/search/?q=${q}`,
+    MDN: (q) => `https://developer.mozilla.org/search?q=${q}`,
+    "Go Packages": (q) => `https://pkg.go.dev/search?q=${q}`,
+    Rust: (q) => `https://crates.io/search?q=${q}`,
+  },
+};
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
-</head>
-<body class="text-gray-200 flex flex-col items-center min-h-screen p-4 selection:bg-teal-500 selection:text-white">
+const CATEGORIES: { key: CategoryKey; label: string; icon: string }[] = [
+  { key: "web", label: "Web", icon: "🌐" },
+  { key: "news", label: "Noticias", icon: "📰" },
+  { key: "images", label: "Imágenes", icon: "🖼️" },
+  { key: "videos", label: "Videos", icon: "🎬" },
+  { key: "jobs", label: "Empleos", icon: "💼" },
+  { key: "shopping", label: "Compras", icon: "🛒" },
+  { key: "maps", label: "Mapas", icon: "🗺️" },
+  { key: "dev", label: "Dev", icon: "💻" },
+] as const;
 
-  <!-- Contenedor Principal -->
-  <div class="w-full max-w-2xl mx-auto">
-    <header class="text-center mb-8 fade-in-up" style="animation-delay: 100ms;">
-      <h1 class="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-500 mb-2">Buscador Inteligente</h1>
-      <p class="text-gray-400">Selecciona una categoría y un motor para iniciar tu búsqueda.</p>
+const OPERATOR_CHIPS = [
+  '"frase exacta"',
+  "-palabra",
+  "palabra1 AND palabra2",
+  "palabra1 OR palabra2",
+  "site:dominio.com",
+  "filetype:pdf",
+  "intitle:palabra",
+  "inurl:palabra",
+  "intext:palabra",
+  "before:2024-01-01",
+  "after:2024-01-01",
+];
+
+// --- Utils ---
+const openUrlSafe = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
+const enc = (s: string) => encodeURIComponent(s.trim());
+const cls = (...v: Array<string | false | null | undefined>) => v.filter(Boolean).join(" ");
+
+// --- Componentes ---
+
+function Header() {
+  return (
+    <header className="text-center mb-6">
+      <motion.h1
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45 }}
+        className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-500"
+      >
+        Buscador Inteligente
+      </motion.h1>
+      <motion.p
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.1 }}
+        className="text-gray-400 mt-1"
+      >
+        Selecciona una categoría y un motor para iniciar tu búsqueda.
+      </motion.p>
     </header>
+  );
+}
 
-    <!-- Caja de Búsqueda -->
-    <main class="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 p-6 flex flex-col gap-5 fade-in-up" style="animation-delay: 200ms;">
-      
-      <!-- Input de Búsqueda -->
-      <div class="relative flex items-center">
-        <label for="query" class="sr-only">Buscar:</label>
-        <svg class="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
-        <input id="query" type="text" placeholder="Escribe tu búsqueda aquí..." autocomplete="off" autofocus
-          class="w-full px-4 py-3 pl-12 pr-10 rounded-lg bg-gray-900 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
-        <button id="clear-query" class="absolute right-3 text-gray-500 hover:text-white transition-colors" aria-label="Limpiar búsqueda" style="display: none;">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+function CategorySelect({ value, onChange }: { value: CategoryKey; onChange: (v: CategoryKey) => void }) {
+  return (
+    <label className="block text-sm">
+      <span className="text-gray-400 font-medium mb-2 block">Categoría</span>
+      <div className="relative">
+        <select
+          className="w-full appearance-none px-4 py-3 rounded-lg bg-gray-900 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all pr-10"
+          value={value}
+          onChange={(e) => onChange(e.target.value as CategoryKey)}
+          aria-label="Seleccionar categoría"
+        >
+          {CATEGORIES.map((c) => (
+            <option key={c.key} value={c.key}>
+              {c.icon} {c.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+      </div>
+    </label>
+  );
+}
+
+function OperatorChips({ onInsert }: { onInsert: (s: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {OPERATOR_CHIPS.map((chip) => (
+        <button
+          key={chip}
+          type="button"
+          onClick={() => onInsert(chip)}
+          className="text-xs bg-gray-800/70 border border-gray-700 rounded-full px-2.5 py-1 hover:bg-teal-600/20 hover:border-teal-500 transition-colors"
+          title={`Insertar ${chip}`}
+        >
+          {chip}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function EngineGrid({
+  engines,
+  onOpen,
+}: {
+  engines: Record<string, (q: string) => string>;
+  onOpen: (name: string, url: string) => void;
+}) {
+  const entries = Object.entries(engines);
+  if (!entries.length) return null;
+  return (
+    <motion.div
+      layout
+      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+      role="group"
+      aria-label="Motores de búsqueda"
+    >
+      {entries.map(([name], i) => (
+        <motion.button
+          key={name}
+          layout
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2, delay: i * 0.03 }}
+          className={cls(
+            "bg-gray-700/50 text-gray-200 border border-gray-600 rounded-lg p-3",
+            "hover:bg-teal-500 hover:text-white hover:border-teal-500",
+            "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500",
+            "transition-all text-sm font-medium active:scale-95 flex items-center justify-between gap-2"
+          )}
+          onClick={() => onOpen(name, "")}
+          title={`Buscar en ${name}`}
+        >
+          <span className="truncate">{name}</span>
+          <ExternalLink className="h-4 w-4 opacity-80" />
+        </motion.button>
+      ))}
+    </motion.div>
+  );
+}
+
+function Recents({ items, onUse, onClear }: { items: string[]; onUse: (q: string) => void; onClear: () => void }) {
+  if (!items.length) return null;
+  return (
+    <div className="mt-3">
+      <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+        <div className="inline-flex items-center gap-1.5"><History className="h-3.5 w-3.5" /> Recientes</div>
+        <button className="inline-flex items-center gap-1 hover:text-red-300" onClick={onClear} title="Borrar historial">
+          <Trash2 className="h-3.5 w-3.5" /> Limpiar
         </button>
       </div>
-
-      <!-- Selector de Categoría -->
-      <div>
-        <label for="category" class="text-gray-400 text-sm font-medium mb-2 block">Categoría</label>
-        <select id="category" aria-label="Seleccionar categoría"
-          class="w-full px-4 py-3 rounded-lg bg-gray-900 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
-          <option value="web">🌐 Web</option>
-          <option value="news">📰 Noticias</option>
-          <option value="images">🖼️ Imágenes</option>
-          <option value="videos">🎬 Videos</option>
-          <option value="jobs">💼 Empleos</option>
-          <option value="shopping">🛒 Compras</option>
-          <option value="maps">🗺️ Mapas</option>
-        </select>
+      <div className="flex flex-wrap gap-2">
+        {items.map((q) => (
+          <button
+            key={q}
+            className="text-xs bg-gray-800/70 border border-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-700 transition-colors"
+            onClick={() => onUse(q)}
+            title={q}
+          >
+            {q}
+          </button>
+        ))}
       </div>
+    </div>
+  );
+}
 
-      <!-- Contenedor de Botones de Búsqueda -->
-      <div id="buttons-container" class="border-t border-gray-700 pt-5 min-h-[80px]">
-        <p id="buttons-placeholder" class="text-center text-gray-500 transition-opacity duration-300">Escribe algo para ver los motores de búsqueda.</p>
-        <div id="buttons" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+export default function SmartSearchApp() {
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<CategoryKey>("web");
+  const [recents, setRecents] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // cargar estado
+  useEffect(() => {
+    setQuery(localStorage.getItem("smartsearch:lastQuery") || "");
+    setCategory(((localStorage.getItem("smartsearch:lastCat") as CategoryKey) || "web"));
+    try {
+      const saved = JSON.parse(localStorage.getItem("smartsearch:recents") || "[]");
+      if (Array.isArray(saved)) setRecents(saved.slice(0, 12));
+    } catch {}
+  }, []);
+
+  // guardar estado
+  useEffect(() => {
+    localStorage.setItem("smartsearch:lastQuery", query);
+  }, [query]);
+  useEffect(() => {
+    localStorage.setItem("smartsearch:lastCat", category);
+  }, [category]);
+
+  const categoryEngines = useMemo(() => ENGINES[category], [category]);
+
+  const hasQuery = query.trim().length > 0;
+
+  const handleOpen = (engineName: string) => {
+    const fn = categoryEngines[engineName];
+    if (!fn) return;
+    const url = fn(enc(query));
+    openUrlSafe(url);
+    // guardar en recientes
+    if (hasQuery) {
+      setRecents((prev) => {
+        const next = [query, ...prev.filter((x) => x !== query)].slice(0, 12);
+        localStorage.setItem("smartsearch:recents", JSON.stringify(next));
+        return next;
+      });
+    }
+  };
+
+  const clearQuery = () => setQuery("");
+
+  // Atajos
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().includes("MAC");
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+      if (e.key === "Escape") {
+        if (query) setQuery("");
+      }
+      if (e.key === "Enter" && document.activeElement === inputRef.current) {
+        // Abrir primer motor
+        const first = Object.values(categoryEngines)[0];
+        if (first && hasQuery) openUrlSafe(first(enc(query)));
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [categoryEngines, hasQuery, query]);
+
+  const insertChip = (s: string) => {
+    const space = query && !query.endsWith(" ") ? " " : "";
+    setQuery(`${query}${space}${s}`);
+    inputRef.current?.focus();
+  };
+
+  const copyQuery = async () => {
+    try {
+      await navigator.clipboard.writeText(query);
+    } catch {}
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-gray-200 p-4 selection:bg-teal-500 selection:text-white">
+      <div className="w-full max-w-3xl mx-auto">
+        <Header />
+
+        <motion.main
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 p-6 flex flex-col gap-5"
+        >
+          {/* Barra de búsqueda */}
+          <div className="relative" role="search">
+            <label htmlFor="query" className="sr-only">
+              Buscar
+            </label>
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-80">
+              <Search className="h-5 w-5 text-gray-400" aria-hidden />
+            </div>
+            <input
+              ref={inputRef}
+              id="query"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Escribe tu búsqueda aquí…"
+              autoFocus
+              autoComplete="off"
+              className="w-full px-4 py-3 pl-12 pr-24 rounded-lg bg-gray-900 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+              aria-describedby="query-help"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <button
+                onClick={copyQuery}
+                title="Copiar"
+                className="p-1 rounded hover:bg-gray-700/60"
+                aria-label="Copiar búsqueda"
+              >
+                <ClipboardCopy className="h-4 w-4" />
+              </button>
+              {hasQuery && (
+                <button
+                  onClick={clearQuery}
+                  title="Limpiar (Esc)"
+                  className="p-1 rounded hover:bg-gray-700/60"
+                  aria-label="Limpiar búsqueda"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+          </div>
+          <p id="query-help" className="text-xs text-gray-400 -mt-1">
+            Atajos: <kbd className="px-1 rounded bg-gray-700">Ctrl</kbd>+
+            <kbd className="px-1 rounded bg-gray-700">K</kbd> enfoca •
+            <kbd className="px-1 rounded bg-gray-700">Enter</kbd> abre el primer motor •
+            <kbd className="px-1 rounded bg-gray-700">Esc</kbd> limpia
+          </p>
+
+          {/* Categoría */}
+          <CategorySelect value={category} onChange={setCategory} />
+
+          {/* Chips de operadores */}
+          <div>
+            <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
+              <Sparkles className="h-4 w-4" />
+              Sugerencias rápidas
+            </div>
+            <OperatorChips onInsert={insertChip} />
+          </div>
+
+          {/* Botonera de motores */}
+          <div className="border-t border-gray-700 pt-5 min-h-[96px]">
+            {!hasQuery ? (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center text-gray-500"
+              >
+                Escribe algo para ver los motores de búsqueda.
+              </motion.p>
+            ) : (
+              <EngineGrid
+                engines={categoryEngines}
+                onOpen={(name) => handleOpen(name)}
+              />
+            )}
+          </div>
+
+          {/* Recientes */}
+          <Recents
+            items={recents}
+            onUse={(q) => setQuery(q)}
+            onClear={() => {
+              localStorage.removeItem("smartsearch:recents");
+              setRecents([]);
+            }}
+          />
+
+          {/* Ayuda colapsable */}
+          <details className="text-sm text-gray-300/90 mt-2">
+            <summary className="cursor-pointer text-teal-400 hover:text-teal-300 transition-colors inline-flex items-center gap-1">
+              <Info className="h-4 w-4" /> Ayuda: Operadores de búsqueda
+            </summary>
+            <div className="bg-gray-900/50 p-4 mt-2 rounded-md border border-gray-700">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">"frase exacta"</code> – Frase exacta</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">-palabra</code> – Excluye una palabra</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">palabra1 AND palabra2</code> – Ambas palabras</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">palabra1 OR palabra2</code> – Una u otra palabra</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">site:dominio.com</code> – Dominio específico</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">filetype:pdf</code> – Tipo de archivo</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">ext:pdf</code> – Extensión de archivo</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">intitle:palabra</code> – Palabra en el título</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allintitle:palabras</code> – Todas en el título</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">inurl:palabra</code> – Palabra en la URL</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allinurl:palabras</code> – Todas en la URL</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">intext:palabra</code> – Palabra en el texto</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allintext:palabras</code> – Todas en el texto</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">related:URL</code> – Sitios relacionados</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">cache:URL</code> – Versión en caché</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">define:palabra</code> – Definición</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">location:país</code> – Geolocalización</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">before:AAAA-MM-DD</code> – Antes de fecha</li>
+                <li><code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">after:AAAA-MM-DD</code> – Después de fecha</li>
+              </ul>
+            </div>
+          </details>
+        </motion.main>
+
+        <footer className="mt-6 text-center text-xs text-gray-500">
+          Hecho con <span className="text-teal-400">♥</span>. Consejos: usa comillas para coincidencias exactas y limita por sitio con <code className="bg-gray-800 px-1 rounded">site:</code>.
+        </footer>
       </div>
-
-      <!-- Operadores Avanzados -->
-      <details class="text-sm text-gray-400 mt-2">
-        <summary class="cursor-pointer text-teal-400 hover:text-teal-300 transition-colors">Ayuda: Operadores de búsqueda</summary>
-        <div class="bg-gray-900/50 p-4 mt-2 rounded-md border border-gray-700">
-            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">"frase exacta"</code> – Frase exacta</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">-palabra</code> – Excluye una palabra</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">palabra1 AND palabra2</code> – Ambas palabras</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">palabra1 OR palabra2</code> – Una u otra palabra</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">site:dominio.com</code> – Dominio específico</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">filetype:pdf</code> – Tipo de archivo</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">ext:pdf</code> – Extensión de archivo</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">intitle:palabra</code> – Palabra en el título</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allintitle:palabras</code> – Todas en el título</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">inurl:palabra</code> – Palabra en la URL</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allinurl:palabras</code> – Todas en la URL</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">intext:palabra</code> – Palabra en el texto</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">allintext:palabras</code> – Todas en el texto</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">related:URL</code> – Sitios relacionados</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">cache:URL</code> – Versión en caché</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">define:palabra</code> – Definición</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">location:país</code> – Geolocalización</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">before:AAAA-MM-DD</code> – Antes de fecha</li>
-                <li><code class="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">after:AAAA-MM-DD</code> – Después de fecha</li>
-            </ul>
-        </div>
-      </details>
-    </main>
-  </div>
-
-  <script>
-    (function() {
-      // --- CONFIGURACIÓN DE MOTORES DE BÚSQUEDA ---
-      const engines = {
-        web: { Google: q => `https://www.google.com/search?q=${q}`, Bing: q => `https://www.bing.com/search?q=${q}`, DuckDuckGo: q => `https://duckduckgo.com/?q=${q}`, Brave: q => `https://search.brave.com/search?q=${q}`, Ecosia: q => `https://www.ecosia.org/search?q=${q}`, Startpage: q => `https://www.startpage.com/search?q=${q}`, Qwant: q => `https://www.qwant.com/?q=${q}`, Swisscows: q => `https://swisscows.com/web?query=${q}`, },
-        news: { 'Google News': q => `https://news.google.com/search?q=${q}`, Clarín: q => `https://www.clarin.com/buscar/${q}`, 'La Nación': q => `https://www.lanacion.com.ar/buscador/?query=${q}`, Infobae: q => `https://www.infobae.com/buscador/?s=${q}`, 'Página 12': q => `https://www.pagina12.com.ar/buscar?q=${q}`, TN: q => `https://tn.com.ar/buscar/?q=${q}`, 'Ámbito': q => `https://www.ambito.com/buscar/?q=${q}`, 'El Cronista': q => `https://www.cronista.com/search/?q=${q}`, },
-        images: { 'Google': q => `https://www.google.com/search?q=${q}&tbm=isch`, 'Bing': q => `https://www.bing.com/images/search?q=${q}`, Unsplash: q => `https://unsplash.com/s/photos/${q}`, Pexels: q => `https://www.pexels.com/search/${q}`, Pixabay: q => `https://pixabay.com/images/search/${q}`, 'Yandex': q => `https://yandex.com/images/search?text=${q}` },
-        videos: { YouTube: q => `https://www.youtube.com/results?search_query=${q}`, Vimeo: q => `https://vimeo.com/search?q=${q}`, Dailymotion: q => `https://www.dailymotion.com/search/${q}`, TikTok: q => `https://www.tiktok.com/search?q=${q}`, Twitch: q => `https://www.twitch.tv/search?term=${q}`, },
-        jobs: { LinkedIn: q => `https://www.linkedin.com/jobs/search?keywords=${q}`, Indeed: q => `https://ar.indeed.com/jobs?q=${q}`, 'Zona Jobs': q => `https://www.zonajobs.com.ar/empleos-busqueda-${q}.html`, Bumeran: q => `https://www.bumeran.com.ar/empleos-busqueda-${q}.html`, Computrabajo: q => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}`, Glassdoor: q => `https://www.glassdoor.com.ar/Empleo/empleos-${q}.htm`, },
-        shopping: { 'Mercado Libre': q => `https://listado.mercadolibre.com.ar/${q}`, Amazon: q => `https://www.amazon.com/s?k=${q}`, eBay: q => `https://www.ebay.com/sch/i.html?_nkw=${q}`, AliExpress: q => `https://es.aliexpress.com/wholesale?SearchText=${q}`, 'Google': q => `https://www.google.com/search?q=${q}&tbm=shop`, },
-        maps: { 'Google Maps': q => `https://www.google.com/maps/search/${q}`, 'Apple Maps': q => `https://maps.apple.com/?q=${q}`, 'Bing Maps': q => `https://www.bing.com/maps?q=${q}`, OpenStreetMap: q => `https://www.openstreetmap.org/search?query=${q}`, Waze: q => `https://www.waze.com/ul?q=${q}`, }
-      };
-
-      // --- REFERENCIAS A ELEMENTOS DEL DOM ---
-      const queryInput = document.getElementById('query');
-      const categorySelect = document.getElementById('category');
-      const buttonsContainer = document.getElementById('buttons');
-      const buttonsPlaceholder = document.getElementById('buttons-placeholder');
-      const clearQueryBtn = document.getElementById('clear-query');
-
-      /**
-       * Renderiza los botones de búsqueda basados en la categoría y el término de búsqueda actuales.
-       */
-      function renderButtons() {
-        const query = queryInput.value.trim();
-        const category = categorySelect.value;
-        const currentEngines = engines[category] || {};
-
-        buttonsContainer.innerHTML = '';
-        clearQueryBtn.style.display = query ? 'block' : 'none';
-
-        if (!query) {
-          buttonsPlaceholder.classList.remove('opacity-0');
-          return;
-        }
-        
-        buttonsPlaceholder.classList.add('opacity-0');
-        
-        Object.entries(currentEngines).forEach(([name, urlFunction], index) => {
-          const btn = document.createElement('button');
-          btn.textContent = name;
-          btn.className = 'bg-gray-700/50 text-gray-200 border border-gray-600 rounded-lg p-3 hover:bg-teal-500 hover:text-white hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 transition-all text-sm font-medium transform active:scale-95 button-pop-in';
-          // Aplicamos un retraso escalonado a la animación
-          btn.style.animationDelay = `${index * 50}ms`;
-          
-          btn.onclick = () => {
-            const searchTerm = encodeURIComponent(query);
-            const url = urlFunction(searchTerm);
-            localStorage.setItem('lastSearchQuery', query);
-            window.open(url, '_blank');
-          };
-          buttonsContainer.appendChild(btn);
-        });
-      }
-
-      /**
-       * Carga la última búsqueda y categoría desde localStorage.
-       */
-      function loadLastState() {
-        queryInput.value = localStorage.getItem('lastSearchQuery') || '';
-        categorySelect.value = localStorage.getItem('lastSearchCategory') || 'web';
-      }
-
-      /**
-       * Limpia el campo de búsqueda y actualiza la UI.
-       */
-      function clearQuery() {
-          queryInput.value = '';
-          queryInput.focus();
-          renderButtons();
-      }
-
-      /**
-       * Inicializa los event listeners.
-       */
-      function init() {
-        loadLastState();
-        renderButtons();
-
-        queryInput.addEventListener('input', renderButtons);
-        clearQueryBtn.addEventListener('click', clearQuery);
-        categorySelect.addEventListener('change', () => {
-          localStorage.setItem('lastSearchCategory', categorySelect.value);
-          renderButtons();
-        });
-      }
-
-      document.addEventListener('DOMContentLoaded', init);
-    })();
-  </script>
-</body>
-</html>
+    </div>
+  );
+}

@@ -2,17 +2,18 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Sparkles, ChevronDown, ExternalLink, History, Trash2, ClipboardCopy, Info } from "lucide-react";
 
-// Nota: Este componente asume Tailwind habilitado.
-// Puedes usarlo tal cual en tu app. Exporta por defecto un componente.
-// Incluye: más motores, accesibilidad, atajos, recientes, chips de operadores y animaciones.
+// Nota: Este componente asume que Tailwind CSS está habilitado en tu proyecto.
+// Puedes usarlo directamente en tu aplicación React.
+// Incluye características como múltiples motores de búsqueda, accesibilidad, atajos de teclado,
+// historial de búsquedas recientes, sugerencias de operadores de búsqueda y animaciones.
 
-// --- Tipos ---
+// --- Definición de Tipos ---
 
 type Engines = Record<string, Record<string, (q: string) => string>>;
 
 type CategoryKey = keyof typeof ENGINES;
 
-// --- Motores (ampliados y local-friendly) ---
+// --- Motores de Búsqueda (Ampliados y adaptados para la región) ---
 const ENGINES: Engines = {
   web: {
     Google: (q) => `https://www.google.com/search?q=${q}`,
@@ -125,12 +126,12 @@ const OPERATOR_CHIPS = [
   "after:2024-01-01",
 ];
 
-// --- Utils ---
+// --- Funciones de Utilidad ---
 const openUrlSafe = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
 const enc = (s: string) => encodeURIComponent(s.trim());
 const cls = (...v: Array<string | false | null | undefined>) => v.filter(Boolean).join(" ");
 
-// --- Componentes ---
+// --- Componentes de la UI ---
 
 function Header() {
   return (
@@ -262,13 +263,15 @@ function Recents({ items, onUse, onClear }: { items: string[]; onUse: (q: string
   );
 }
 
+// --- Componente Principal ---
+
 export default function SmartSearchApp() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<CategoryKey>("web");
   const [recents, setRecents] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // cargar estado
+  // Cargar estado desde localStorage al montar el componente
   useEffect(() => {
     setQuery(localStorage.getItem("smartsearch:lastQuery") || "");
     setCategory(((localStorage.getItem("smartsearch:lastCat") as CategoryKey) || "web"));
@@ -278,7 +281,7 @@ export default function SmartSearchApp() {
     } catch {}
   }, []);
 
-  // guardar estado
+  // Guardar estado en localStorage cuando cambia
   useEffect(() => {
     localStorage.setItem("smartsearch:lastQuery", query);
   }, [query]);
@@ -295,7 +298,7 @@ export default function SmartSearchApp() {
     if (!fn) return;
     const url = fn(enc(query));
     openUrlSafe(url);
-    // guardar en recientes
+    // Guardar en búsquedas recientes
     if (hasQuery) {
       setRecents((prev) => {
         const next = [query, ...prev.filter((x) => x !== query)].slice(0, 12);
@@ -307,7 +310,7 @@ export default function SmartSearchApp() {
 
   const clearQuery = () => setQuery("");
 
-  // Atajos
+  // Atajos de teclado
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const isMac = navigator.platform.toUpperCase().includes("MAC");
@@ -320,7 +323,7 @@ export default function SmartSearchApp() {
         if (query) setQuery("");
       }
       if (e.key === "Enter" && document.activeElement === inputRef.current) {
-        // Abrir primer motor
+        // Abrir en el primer motor de la lista
         const first = Object.values(categoryEngines)[0];
         if (first && hasQuery) openUrlSafe(first(enc(query)));
       }
@@ -338,7 +341,9 @@ export default function SmartSearchApp() {
   const copyQuery = async () => {
     try {
       await navigator.clipboard.writeText(query);
-    } catch {}
+    } catch (err) {
+      console.error("Failed to copy query: ", err);
+    }
   };
 
   return (
@@ -399,10 +404,10 @@ export default function SmartSearchApp() {
             <kbd className="px-1 rounded bg-gray-700">Esc</kbd> limpia
           </p>
 
-          {/* Categoría */}
+          {/* Selector de Categoría */}
           <CategorySelect value={category} onChange={setCategory} />
 
-          {/* Chips de operadores */}
+          {/* Chips de Operadores */}
           <div>
             <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
               <Sparkles className="h-4 w-4" />
@@ -411,7 +416,7 @@ export default function SmartSearchApp() {
             <OperatorChips onInsert={insertChip} />
           </div>
 
-          {/* Botonera de motores */}
+          {/* Grilla de Motores de Búsqueda */}
           <div className="border-t border-gray-700 pt-5 min-h-[96px]">
             {!hasQuery ? (
               <motion.p
@@ -429,7 +434,7 @@ export default function SmartSearchApp() {
             )}
           </div>
 
-          {/* Recientes */}
+          {/* Búsquedas Recientes */}
           <Recents
             items={recents}
             onUse={(q) => setQuery(q)}
@@ -439,7 +444,7 @@ export default function SmartSearchApp() {
             }}
           />
 
-          {/* Ayuda colapsable */}
+          {/* Ayuda Colapsable */}
           <details className="text-sm text-gray-300/90 mt-2">
             <summary className="cursor-pointer text-teal-400 hover:text-teal-300 transition-colors inline-flex items-center gap-1">
               <Info className="h-4 w-4" /> Ayuda: Operadores de búsqueda

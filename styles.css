@@ -1,0 +1,18 @@
+/* Simple transition for components */
+.transition-all {
+    transition: all 0.3s ease-in-out;
+}
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Custom styles for the details/summary arrow */
+details > summary {
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}

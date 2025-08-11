@@ -1,425 +1,477 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscador Inteligente Definitivo</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & ReactDOM CDN -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <!-- Babel CDN for JSX transpilation -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        /* Estilo para una transición suave en todos los elementos */
-        .transition-all {
-            transition: all 0.3s ease-in-out;
-        }
-        /* Animación de entrada para los componentes */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Estilos personalizados para el desplegable <details> */
-        details > summary {
-            list-style: none;
-        }
-        details > summary::-webkit-details-marker {
-            display: none;
-        }
-        /* Estilo para las barras de scroll */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1f2937; /* bg-gray-800 */
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #374151; /* bg-gray-700 */
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563; /* bg-gray-600 */
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buscador Inteligente Definitivo — Turbo</title>
+
+  <!-- Fuente -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React & ReactDOM UMD -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root{
+      --bg1:#0b1220;--bg2:#0f172a;
+      --acc1:#14b8a6;--acc2:#06b6d4;--acc3:#8b5cf6;
+      --ring: rgba(20,184,166,.55);
+    }
+    html,body{height:100%}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";background: radial-gradient(1200px 600px at 10% -10%, #0ea5e920, transparent 60%), radial-gradient(900px 500px at 110% 10%, #14b8a620, transparent 60%), linear-gradient(180deg,var(--bg1),var(--bg2));}
+    /* Scrollbar */
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-track{background:#0f172a}
+    ::-webkit-scrollbar-thumb{background:#334155;border-radius:8px}
+    ::-webkit-scrollbar-thumb:hover{background:#475569}
+    /* Global transitions */
+    .t-all{transition:all .35s cubic-bezier(.22,1,.36,1)}
+    .fade-in{animation:fadeIn .6s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    /* Shimmer text */
+    .shimmer{background:linear-gradient(90deg,#fff, #a7f3d0 30%, #93c5fd 60%, #e9d5ff);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:300% 100%;animation:shine 2.5s linear infinite}
+    @keyframes shine{0%{background-position:0 0}100%{background-position:300% 0}}
+    /* Animated gradient border container */
+    .agb{position:relative}
+    .agb:before{content:"";position:absolute;inset:-2px;border-radius:1.2rem;padding:2px;background:
+      conic-gradient(from 0deg, rgba(20,184,166,.8), rgba(6,182,212,.8), rgba(139,92,246,.8), rgba(20,184,166,.8));
+      -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;mask-composite:exclude;animation:spin 6s linear infinite}
+    @keyframes spin{to{transform:rotate(1turn)}}
+    /* Button shine + ripple */
+    .btn{position:relative;overflow:hidden}
+    .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.12) 20%,transparent 40%);transform:translateX(-100%);transition:transform .7s ease}
+    .btn:hover::after{transform:translateX(100%)}
+    .ripple{position:absolute;border-radius:9999px;pointer-events:none;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,255,255,.35),transparent 60%);animation:rip .7s ease-out}
+    @keyframes rip{from{width:0;height:0;opacity:.7}to{width:240px;height:240px;opacity:0}}
+    /* Magnetic hover */
+    .mag:hover{transform:translateY(-2px) scale(1.01)}
+    /* Engine card lift */
+    .card{box-shadow:0 6px 18px -6px rgba(0,0,0,.65)}
+    .card:hover{box-shadow:0 14px 30px -6px rgba(0,0,0,.7)}
+    /* Operators grid monospace */
+    code{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+    /* Prefers reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .t-all, .fade-in, .agb:before, .btn::after {animation:none !important; transition:none !important}
+    }
+  </style>
 </head>
-<body class="bg-gray-900">
-    <div id="root"></div>
+<body class="min-h-screen text-gray-100 selection:bg-teal-500/70 selection:text-white">
+  <!-- Floating FX Canvas -->
+  <canvas id="fx-canvas" class="fixed inset-0 -z-10"></canvas>
 
-    <script type="text/babel">
-        const { useEffect, useMemo, useRef, useState } = React;
+  <div id="root"></div>
 
-        // --- Componente de Iconos SVG (reemplaza a lucide-react para simplicidad) ---
-        const Icon = ({ name, className }) => {
-            const icons = {
-                search: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
-                x: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
-                chevronDown: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>,
-                externalLink: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>,
-                history: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.19-9.51L1 10"></path></svg>,
-                trash2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>,
-                clipboardCopy: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>,
-                info: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>,
-                check: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>,
-                bookOpen: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
-                book: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>,
-                utensils: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"></path></svg>,
-                plane: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg>,
-                users: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
-                trendingUp: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>,
-                podcast: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"></circle><rect x="2" y="8" width="20" height="8" rx="2"></rect><path d="M12 16v3"></path><path d="M8 19h8"></path></svg>,
-                magnet: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14 9l-4 4"></path><path d="M14 2H8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path><path d="M8 2v4"></path><path d="M14 2v4"></path><path d="M8 16h4"></path></svg>,
-                alertTriangle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>,
-                brainCircuit: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 5.5a4.5 4.5 0 0 1 4.5 4.5v.5a4.5 4.5 0 0 1-4.5 4.5v0a4.5 4.5 0 0 1-4.5-4.5v-.5A4.5 4.5 0 0 1 12 5.5z"/><path d="M12 15a2.5 2.5 0 0 0 2.5-2.5V12a2.5 2.5 0 0 0-2.5-2.5v0A2.5 2.5 0 0 0 9.5 12v.5A2.5 2.5 0 0 0 12 15z"/><path d="M12 15v1.5a2.5 2.5 0 0 0 2.5 2.5h1a2 2 0 0 1 2 2v1"/><path d="M12 15v1.5a2.5 2.5 0 0 1-2.5 2.5h-1a2 2 0 0 0-2 2v1"/><path d="M12 9.5V8a2.5 2.5 0 0 1 2.5-2.5h1a2 2 0 0 0 2-2V2"/><path d="M12 9.5V8a2.5 2.5 0 0 0-2.5-2.5h-1a2 2 0 0 1-2-2V2"/><path d="M18 6.5h-1.5"/><path d="M7.5 6.5H6"/><path d="M18 17.5h-1.5"/><path d="M7.5 17.5H6"/></svg>,
-                scale: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 16l3-8 3 8c-2 1-4 1-6 0z"/><path d="M2 16l3-8 3 8c-2 1-4 1-6 0z"/><path d="M12 2v20"/><path d="M12 6H4.5a2.5 2.5 0 0 0-2.2 3.9l.8 1.1"/><path d="M12 6h7.5a2.5 2.5 0 0 1 2.2 3.9l-.8 1.1"/><path d="M4 12h16"/></svg>,
-                heartPulse: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19.5 12.5c0-1.5-1-3-2.5-3s-2.5 1.5-2.5 3c0 1.5 1 3 2.5 3s2.5-1.5 2.5-3z"/><path d="M22 12.5c0-1.5-1-3-2.5-3s-2.5 1.5-2.5 3c0 1.5 1 3 2.5 3s2.5-1.5 2.5-3z"/><path d="M2 12.5c0-1.5 1-3 2.5-3s2.5 1.5 2.5 3c0 1.5-1 3-2.5 3s-2.5-1.5-2.5-3z"/><path d="M4.5 12.5H22"/></svg>,
-                home: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
-                gamepad2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.97 3.59c-.23 1.25-.05 2.6.52 3.82a4 4 0 0 0 3.45 2.59H12v2.5a2.5 2.5 0 0 0 5 0V15h.02a4 4 0 0 0 3.47-2.59c.57-1.22.75-2.57.52-3.82A4 4 0 0 0 17.32 5z"/></svg>,
-            };
-            return icons[name] || null;
+  <script type="text/babel">
+    const {useEffect,useMemo,useRef,useState} = React;
+
+    /** Iconos SVG (ligeros) */
+    const Icon = ({ name, className }) => {
+      const icons = {
+        search: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
+        x: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
+        chevronDown: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>,
+        externalLink: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>,
+        history: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.19-9.51L1 10"></path></svg>,
+        trash2: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>,
+        clipboardCopy: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>,
+        info: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>,
+        check: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg>,
+        users: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
+        trendingUp: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>,
+        alertTriangle: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>,
+        bookOpen: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
+        scale: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 16l3-8 3 8c-2 1-4 1-6 0z"></path><path d="M2 16l3-8 3 8c-2 1-4 1-6 0z"></path><path d="M12 2v20"></path><path d="M12 6H4.5a2.5 2.5 0 0 0-2.2 3.9l.8 1.1"></path><path d="M12 6h7.5a2.5 2.5 0 0 1 2.2 3.9l-.8 1.1"></path><path d="M4 12h16"></path></svg>,
+        heartPulse: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M19.5 12.5c0-1.5-1-3-2.5-3s-2.5 1.5-2.5 3c0 1.5 1 3 2.5 3s2.5-1.5 2.5-3z"></path><path d="M22 12.5c0-1.5-1-3-2.5-3s-2.5 1.5-2.5 3c0 1.5 1 3 2.5 3s2.5-1.5 2.5-3z"></path><path d="M2 12.5c0-1.5 1-3 2.5-3s2.5 1.5 2.5 3c0 1.5-1 3-2.5 3s-2.5-1.5-2.5-3z"></path><path d="M4.5 12.5H22"></path></svg>,
+        home: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
+        gamepad2: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.97 3.59c-.23 1.25-.05 2.6.52 3.82a4 4 0 0 0 3.45 2.59H12v2.5a2.5 2.5 0 0 0 5 0V15h.02a4 4 0 0 0 3.47-2.59c.57-1.22.75-2.57.52-3.82A4 4 0 0 0 17.32 5z"/></svg>,
+        plane: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>,
+        podcast: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4"></circle><rect x="2" y="8" width="20" height="8" rx="2"></rect><path d="M12 16v3"></path><path d="M8 19h8"></path></svg>,
+        magnet: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 9l-4 4"></path><path d="M14 2H8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path><path d="M8 2v4"></path><path d="M14 2v4"></path><path d="M8 16h4"></path></svg>,
+      };
+      return icons[name] || null;
+    };
+
+    /* Motores completos (idéntico set base con mejoras menores) */
+    const ENGINES = {
+      web: { Google: q=>`https://www.google.com/search?q=${q}`, Yahoo: q=>`https://search.yahoo.com/search?p=${q}`, Bing: q=>`https://www.bing.com/search?q=${q}`, DuckDuckGo: q=>`https://duckduckgo.com/?q=${q}`, Brave: q=>`https://search.brave.com/search?q=${q}`, Ecosia: q=>`https://www.ecosia.org/search?q=${q}`, Perplexity: q=>`https://www.perplexity.ai/search?q=${q}`, You: q=>`https://you.com/search?q=${q}`, Startpage: q=>`https://www.startpage.com/search?q=${q}`, Qwant: q=>`https://www.qwant.com/?q=${q}`, Searx: q=>`https://searx.space/search?q=${q}`, Swisscows: q=>`https://swisscows.com/web?query=${q}` },
+      news: { "Google News": q=>`https://news.google.com/search?q=${q}`, Reuters: q=>`https://www.reuters.com/site-search/?query=${q}`, "Associated Press": q=>`https://apnews.com/search?q=${q}`, BBC: q=>`https://www.bbc.co.uk/search?q=${q}`, Clarín: q=>`https://www.clarin.com/buscar/${q}`, "La Nación": q=>`https://www.lanacion.com.ar/buscador/?query=${q}`, Infobae: q=>`https://www.infobae.com/buscador/?s=${q}`, "Página|12": q=>`https://www.pagina12.com.ar/buscar/${q}`, Perfil: q=>`https://www.perfil.com/buscador?q=${q}`, "El Cronista": q=>`https://www.cronista.com/search/?q=${q}`, "Ámbito": q=>`https://www.ambito.com/buscar?q=${q}` },
+      images: { Google: q=>`https://www.google.com/search?q=${q}&tbm=isch`, Bing: q=>`https://www.bing.com/images/search?q=${q}`, Yahoo: q=>`https://images.search.yahoo.com/search/images?p=${q}`, Unsplash: q=>`https://unsplash.com/s/photos/${q}`, Pexels: q=>`https://www.pexels.com/search/${q}`, Pinterest: q=>`https://www.pinterest.com/search/pins/?q=${q}`, Flickr: q=>`https://www.flickr.com/search/?text=${q}`, "Getty Images": q=>`https://www.gettyimages.es/search/2/image?phrase=${q}`, "Adobe Stock": q=>`https://stock.adobe.com/search?k=${q}`, DeviantArt: q=>`https://www.deviantart.com/search?q=${q}` },
+      videos: { YouTube: q=>`https://www.youtube.com/results?search_query=${q}`, Vimeo: q=>`https://vimeo.com/search?q=${q}`, TikTok: q=>`https://www.tiktok.com/search?q=${q}`, Dailymotion: q=>`https://www.dailymotion.com/search/${q}`, Twitch: q=>`https://www.twitch.tv/search?term=${q}`, Rumble: q=>`https://rumble.com/search/video?q=${q}`, Odysee: q=>`https://odysee.com/$/search?q=${q}` },
+      shopping: { "Mercado Libre": q=>`https://listado.mercadolibre.com.ar/${q}`, Amazon: q=>`https://www.amazon.com/s?k=${q}`, eBay: q=>`https://www.ebay.com/sch/i.html?_nkw=${q}`, "Google Shopping": q=>`https://www.google.com/search?q=${q}&tbm=shop`, "Tiendamia": q=>`https://tiendamia.com/ar/search?q=${q}`, "Buscapé": q=>`https://www.buscape.com.ar/search?q=${q}`, Frávega: q=>`https://www.fravega.com/l/?keyword=${q}`, Musimundo: q=>`https://www.musimundo.com/search?=${q}`, "OLX Argentina": q=>`https://www.olx.com.ar/items/q-${q}` },
+      ai: { ChatGPT: q=>`https://chat.openai.com/search?q=${q}`, Gemini: q=>`https://gemini.google.com/app?q=${q}`, Perplexity: q=>`https://www.perplexity.ai/search?q=${q}`, Claude: q=>`https://claude.ai/chats`, Poe: q=>`https://poe.com/search?q=${q}`, Phind: q=>`https://www.phind.com/search?q=${q}`},
+      dev: { GitHub: q=>`https://github.com/search?q=${q}`, StackOverflow: q=>`https://stackoverflow.com/search?q=${q}`, npm: q=>`https://www.npmjs.com/search?q=${q}`, MDN: q=>`https://developer.mozilla.org/search?q=${q}`, DevDocs: q=>`https://devdocs.io/#q=${q}`, "crates.io": q=>`https://crates.io/search?q=${q}`, DockerHub: q=>`https://hub.docker.com/search?q=${q}`, GitLab: q=>`https://gitlab.com/search?search=${q}`, SourceForge: q=>`https://sourceforge.net/directory/?q=${q}` },
+      academic: { "Google Scholar": q=>`https://scholar.google.com/scholar?q=${q}`, JSTOR: q=>`https://www.jstor.org/action/doBasicSearch?Query=${q}`, SciELO: q=>`https://search.scielo.org/?q=${q}`, Dialnet: q=>`https://dialnet.unirioja.es/buscar/documentos?querysDismax.DOCUMENTAL_TODO=${q}`, arXiv: q=>`https://arxiv.org/search/?query=${q}`, PubMed: q=>`https://pubmed.ncbi.nlm.nih.gov/?term=${q}`, "Semantic Scholar": q=>`https://www.semanticscholar.org/search?q=${q}`, BASE: q=>`https://www.base-search.net/Search/Results?q=${q}` },
+      reference: { Wikipedia: q=>`https://es.wikipedia.org/w/index.php?search=${q}`, Wiktionary: q=>`https://es.wiktionary.org/w/index.php?search=${q}`, "WolframAlpha": q=>`https://www.wolframalpha.com/input?i=${q}`, Britannica: q=>`https://www.britannica.com/search?query=${q}`, "WordReference": q=>`https://www.wordreference.com/es/en/translation.asp?spen=${q}`, RAE: q=>`https://dle.rae.es/${q}` },
+      social: { "X (Twitter)": q=>`https://twitter.com/search?q=${q}`, Reddit: q=>`https://www.reddit.com/search/?q=${q}`, Instagram: q=>`https://www.instagram.com/explore/tags/${q}/`, Facebook: q=>`https://www.facebook.com/search/top/?q=${q}`, TikTok: q=>`https://www.tiktok.com/search/user?q=${q}`, Mastodon: q=>`https://mastodon.social/explore/tags/${q}`, Tumblr: q=>`https://www.tumblr.com/search/${q}` },
+      jobs: { LinkedIn: q=>`https://www.linkedin.com/jobs/search?keywords=${q}`, Indeed: q=>`https://ar.indeed.com/jobs?q=${q}`, Bumeran: q=>`https://www.bumeran.com.ar/empleos-busqueda-${q}.html`, "Zona Jobs": q=>`https://www.zonajobs.com.ar/empleos-busqueda-${q}.html`, Computrabajo: q=>`https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}`, "Get on Board": q=>`https://www.getonbrd.com/jobs/${q}`, Wellfound: q=>`https://wellfound.com/jobs?q=${q}`, Upwork: q=>`https://www.upwork.com/search/jobs/?q=${q}` },
+      maps: { "Google Maps": q=>`https://www.google.com/maps/search/${q}`, Waze: q=>`https://www.waze.com/ul?q=${q}`, OpenStreetMap: q=>`https://www.openstreetmap.org/search?query=${q}`, "Bing Maps": q=>`https://www.bing.com/maps?q=${q}`, "HERE WeGo": q=>`https://wego.here.com/search/${q}`, "Yandex Maps": q=>`https://yandex.com/maps/?text=${q}` },
+      travel: { "Google Flights": q=>`https://www.google.com/flights?q=${q}`, CozyCozy: q=>`https://www.cozycozy.com/ar/alojamiento/s/${q}`, Skyscanner: q=>`https://www.espanol.skyscanner.com/transporte/vuelos-desde/buea/${q}`, "Booking.com": q=>`https://www.booking.com/searchresults.html?ss=${q}`, Airbnb: q=>`https://www.airbnb.com.ar/s/${q}/homes`, "Despegar.com": q=>`https://www.despegar.com.ar/search/global/${q}`, Kayak: q=>`https://www.kayak.com.ar/flights?q=${q}`, Expedia: q=>`https://www.expedia.com/Hotel-Search?q=${q}`, Almundo: q=>`https://almundo.com.ar/flights/results/${q}` },
+      finance: { "Google Finance": q=>`https://www.google.com/finance/search?q=${q}`, "Yahoo Finance": q=>`https://finance.yahoo.com/lookup?s=${q}`, Bloomberg: q=>`https://www.bloomberg.com/search?query=${q}`, "TradingView": q=>`https://www.tradingview.com/symbols/${q}/`, Reuters: q=>`https://www.reuters.com/search/news?blob=${q}`, "Investing.com": q=>`https://www.investing.com/search/?q=${q}` },
+      legal: { SAIJ: q=>`http://www.saij.gob.ar/search?q=${q}`, InfoLEG: q=>`https://www.google.com/search?q=site:servicios.infoleg.gob.ar+${q}`, "Boletín Oficial": q=>`https://www.boletinoficial.gob.ar/busqueda?q=${q}`, "Poder Judicial": q=>`https://www.google.com/search?q=site:cij.gov.ar+${q}` },
+      health: { PubMed: q=>`https://pubmed.ncbi.nlm.nih.gov/?term=${q}`, "Mayo Clinic": q=>`https://www.mayoclinic.org/search/search-results?q=${q}`, WebMD: q=>`https://www.webmd.com/search/search_results/default.aspx?query=${q}`, MedlinePlus: q=>`https://medlineplus.gov/search?query=${q}`, "Vademecum (AR)": q=>`https://www.vademecum.es/principios-activos-${q}-ar` },
+      real_estate: { ZonaProp: q=>`https://www.zonaprop.com.ar/inmuebles-buscar-${q}.html`, ArgenProp: q=>`https://www.argenprop.com/inmuebles-buscar-${q}`, "ML Inmuebles": q=>`https://inmuebles.mercadolibre.com.ar/${q.replace(/\\s/g,"-")}_NoIndex_True` },
+      gaming: { Steam: q=>`https://store.steampowered.com/search/?term=${q}`, IGN: q=>`https://www.ign.com/search?q=${q}`, Metacritic: q=>`https://www.metacritic.com/search/${q}/`, Twitch: q=>`https://www.twitch.tv/search?term=${q}`, "PCGamer": q=>`https://www.pcgamer.com/search?q=${q}` },
+      recipes: { YouTube: q=>`https://www.youtube.com/results?search_query=${q}+receta`, Allrecipes: q=>`https://www.allrecipes.com/search/results/?search=${q}`, "Kiwilimón": q=>`https://www.kiwilimon.com/busqueda?s=${q}`, "Bon Appetit": q=>`https://www.bonappetit.com/search?q=${q}`, Epicurious: q=>`https://www.epicurious.com/search?q=${q}`, "Food.com": q=>`https://www.food.com/search/${q}` },
+      books: { "Google Books": q=>`https://www.google.com/search?tbm=bks&q=${q}`, Goodreads: q=>`https://www.goodreads.com/search?q=${q}`, Amazon: q=>`https://www.amazon.com/s?k=${q}&i=stripbooks`, "Internet Archive": q=>`https://archive.org/search.php?query=${q}&mediatype=texts`, "Project Gutenberg": q=>`https://www.gutenberg.org/ebooks/search/?query=${q}`, "Cúspide": q=>`https://www.cuspide.com/catalogsearch/result/?q=${q}` },
+      podcasts: { Spotify: q=>`https://open.spotify.com/search/${q}`, "Apple Podcasts": q=>`https://podcasts.apple.com/us/search?term=${q}`, "Google Podcasts": q=>`https://podcasts.google.com/search/${q}`, "Listen Notes": q=>`https://www.listennotes.com/search/?q=${q}`, iVoox: q=>`https://www.ivoox.com/escuchar-audios_${q}_1.html`, "Pocket Casts": q=>`https://play.pocketcasts.com/web/search?q=${q}` },
+      torrents: { "1337x": q=>`https://1337x.to/search/${q}/1/`, "The Pirate Bay": q=>`https://thepiratebay.org/search.php?q=${q}`, RARBG: q=>`https://rargb.to/search?search=${q}`, YTS: q=>`https://yts.mx/browse-movies/${q}/all/all/0/latest/0/all`, EZTV: q=>`https://eztv.re/search/${q}` },
+    };
+
+    const CATEGORIES = [
+      { key: "web", label: "Web"},
+      { key: "ai", label: "IA"},
+      { key: "news", label: "Noticias"},
+      { key: "images", label: "Imágenes"},
+      { key: "videos", label: "Videos"},
+      { key: "gaming", label: "Gaming"},
+      { key: "shopping", label: "Compras"},
+      { key: "jobs", label: "Empleos"},
+      { key: "maps", label: "Mapas"},
+      { key: "dev", label: "Devs"},
+      { key: "social", label: "Social"},
+      { key: "academic", label: "Académico"},
+      { key: "reference", label: "Referencia"},
+      { key: "legal", label: "Legal"},
+      { key: "health", label: "Salud"},
+      { key: "real_estate", label: "Inmuebles"},
+      { key: "travel", label: "Viajes"},
+      { key: "recipes", label: "Recetas"},
+      { key: "finance", label: "Finanzas"},
+      { key: "books", label: "Libros"},
+      { key: "podcasts", label: "Podcasts"},
+      { key: "torrents", label: "Torrents"},
+    ];
+
+    const openUrlSafe = (url) => window.open(url, "_blank", "noopener,noreferrer");
+    const enc = (s) => encodeURIComponent(s.trim());
+
+    /** FX Canvas: partículas sutiles + parallax */
+    function useFxCanvas(){
+      useEffect(()=>{
+        const c = document.getElementById("fx-canvas");
+        const ctx = c.getContext("2d");
+        const DPR = Math.min(window.devicePixelRatio || 1, 2);
+        let w,h,raf,particles=[];
+        const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        const resize=()=>{
+          w = c.width = innerWidth*DPR; h = c.height = innerHeight*DPR;
+          c.style.width = innerWidth+"px"; c.style.height = innerHeight+"px";
+          particles = Array.from({length: prefersReduced? 40 : 120}, ()=>({
+            x: Math.random()*w, y: Math.random()*h, r: Math.random()*2+0.4, a: Math.random()*Math.PI*2, s: Math.random()*0.6+0.2
+          }));
         };
-
-        // --- Motores de Búsqueda (Colección Definitiva) ---
-        const ENGINES = {
-          web: { Google: (q) => `https://www.google.com/search?q=${q}`, Yahoo: (q) => `https://search.yahoo.com/search?p=${q}`, Bing: (q) => `https://www.bing.com/search?q=${q}`, DuckDuckGo: (q) => `https://duckduckgo.com/?q=${q}`, Brave: (q) => `https://search.brave.com/search?q=${q}`, Ecosia: (q) => `https://www.ecosia.org/search?q=${q}`, Perplexity: (q) => `https://www.perplexity.ai/search?q=${q}`, You: (q) => `https://you.com/search?q=${q}`, Startpage: (q) => `https://www.startpage.com/search?q=${q}`, Qwant: (q) => `https://www.qwant.com/?q=${q}`, Searx: (q) => `https://searx.space/search?q=${q}`, Swisscows: (q) => `https://swisscows.com/web?query=${q}` },
-          news: { "Google News": (q) => `https://news.google.com/search?q=${q}`, Reuters: (q) => `https://www.reuters.com/site-search/?query=${q}`, "Associated Press": (q) => `https://apnews.com/search?q=${q}`, BBC: (q) => `https://www.bbc.co.uk/search?q=${q}`, Clarín: (q) => `https://www.clarin.com/buscar/${q}`, "La Nación": (q) => `https://www.lanacion.com.ar/buscador/?query=${q}`, Infobae: (q) => `https://www.infobae.com/buscador/?s=${q}`, "Página|12": (q) => `https://www.pagina12.com.ar/buscar/${q}`, Perfil: (q) => `https://www.perfil.com/buscador?q=${q}`, "El Cronista": (q) => `https://www.cronista.com/search/?q=${q}`, "Ámbito": (q) => `https://www.ambito.com/buscar?q=${q}` },
-          images: { Google: (q) => `https://www.google.com/search?q=${q}&tbm=isch`, Bing: (q) => `https://www.bing.com/images/search?q=${q}`, Yahoo: (q) => `https://images.search.yahoo.com/search/images?p=${q}`, Unsplash: (q) => `https://unsplash.com/s/photos/${q}`, Pexels: (q) => `https://www.pexels.com/search/${q}`, Pinterest: (q) => `https://www.pinterest.com/search/pins/?q=${q}`, Flickr: (q) => `https://www.flickr.com/search/?text=${q}`, "Getty Images": (q) => `https://www.gettyimages.es/search/2/image?phrase=${q}`, "Adobe Stock": (q) => `https://stock.adobe.com/search?k=${q}`, DeviantArt: (q) => `https://www.deviantart.com/search?q=${q}` },
-          videos: { YouTube: (q) => `https://www.youtube.com/results?search_query=${q}`, Vimeo: (q) => `https://vimeo.com/search?q=${q}`, TikTok: (q) => `https://www.tiktok.com/search?q=${q}`, Dailymotion: (q) => `https://www.dailymotion.com/search/${q}`, Twitch: (q) => `https://www.twitch.tv/search?term=${q}`, Rumble: (q) => `https://rumble.com/search/video?q=${q}`, Odysee: (q) => `https://odysee.com/$/search?q=${q}` },
-          shopping: { "Mercado Libre": (q) => `https://listado.mercadolibre.com.ar/${q}`, Amazon: (q) => `https://www.amazon.com/s?k=${q}`, eBay: (q) => `https://www.ebay.com/sch/i.html?_nkw=${q}`, "Google Shopping": (q) => `https://www.google.com/search?q=${q}&tbm=shop`, "Tiendamia": (q) => `https://tiendamia.com/ar/search?q=${q}`, "Buscapé": (q) => `https://www.buscape.com.ar/search?q=${q}`, Frávega: (q) => `https://www.fravega.com/l/?keyword=${q}`, Musimundo: (q) => `https://www.musimundo.com/search?=${q}`, "OLX Argentina": (q) => `https://www.olx.com.ar/items/q-${q}` },
-          ai: { ChatGPT: (q) => `https://chat.openai.com/search?q=${q}`, Gemini: (q) => `https://gemini.google.com/app?q=${q}`, Perplexity: (q) => `https://www.perplexity.ai/search?q=${q}`, Claude: (q) => `https://claude.ai/chats`, Poe: (q) => `https://poe.com/search?q=${q}`, Phind: (q) => `https://www.phind.com/search?q=${q}`},
-          dev: { GitHub: (q) => `https://github.com/search?q=${q}`, StackOverflow: (q) => `https://stackoverflow.com/search?q=${q}`, npm: (q) => `https://www.npmjs.com/search?q=${q}`, MDN: (q) => `https://developer.mozilla.org/search?q=${q}`, DevDocs: (q) => `https://devdocs.io/#q=${q}`, "crates.io": (q) => `https://crates.io/search?q=${q}`, DockerHub: (q) => `https://hub.docker.com/search?q=${q}`, GitLab: (q) => `https://gitlab.com/search?search=${q}`, SourceForge: (q) => `https://sourceforge.net/directory/?q=${q}` },
-          academic: { "Google Scholar": (q) => `https://scholar.google.com/scholar?q=${q}`, JSTOR: (q) => `https://www.jstor.org/action/doBasicSearch?Query=${q}`, SciELO: (q) => `https://search.scielo.org/?q=${q}`, Dialnet: (q) => `https://dialnet.unirioja.es/buscar/documentos?querysDismax.DOCUMENTAL_TODO=${q}`, arXiv: (q) => `https://arxiv.org/search/?query=${q}`, PubMed: (q) => `https://pubmed.ncbi.nlm.nih.gov/?term=${q}`, "Semantic Scholar": (q) => `https://www.semanticscholar.org/search?q=${q}`, BASE: (q) => `https://www.base-search.net/Search/Results?q=${q}` },
-          reference: { Wikipedia: (q) => `https://es.wikipedia.org/w/index.php?search=${q}`, Wiktionary: (q) => `https://es.wiktionary.org/w/index.php?search=${q}`, "WolframAlpha": (q) => `https://www.wolframalpha.com/input?i=${q}`, Britannica: (q) => `https://www.britannica.com/search?query=${q}`, "WordReference": (q) => `https://www.wordreference.com/es/en/translation.asp?spen=${q}`, RAE: (q) => `https://dle.rae.es/${q}` },
-          social: { "X (Twitter)": (q) => `https://twitter.com/search?q=${q}`, Reddit: (q) => `https://www.reddit.com/search/?q=${q}`, Instagram: (q) => `https://www.instagram.com/explore/tags/${q}/`, Facebook: (q) => `https://www.facebook.com/search/top/?q=${q}`, TikTok: (q) => `https://www.tiktok.com/search/user?q=${q}`, Mastodon: (q) => `https://mastodon.social/explore/tags/${q}`, Tumblr: (q) => `https://www.tumblr.com/search/${q}` },
-          jobs: { LinkedIn: (q) => `https://www.linkedin.com/jobs/search?keywords=${q}`, Indeed: (q) => `https://ar.indeed.com/jobs?q=${q}`, Bumeran: (q) => `https://www.bumeran.com.ar/empleos-busqueda-${q}.html`, "Zona Jobs": (q) => `https://www.zonajobs.com.ar/empleos-busqueda-${q}.html`, Computrabajo: (q) => `https://www.computrabajo.com.ar/ofertas-de-trabajo/?q=${q}`, "Get on Board": (q) => `https://www.getonbrd.com/jobs/${q}`, Wellfound: (q) => `https://wellfound.com/jobs?q=${q}`, Upwork: (q) => `https://www.upwork.com/search/jobs/?q=${q}` },
-          maps: { "Google Maps": (q) => `https://www.google.com/maps/search/${q}`, Waze: (q) => `https://www.waze.com/ul?q=${q}`, OpenStreetMap: (q) => `https://www.openstreetmap.org/search?query=${q}`, "Bing Maps": (q) => `https://www.bing.com/maps?q=${q}`, "HERE WeGo": (q) => `https://wego.here.com/search/${q}`, "Yandex Maps": (q) => `https://yandex.com/maps/?text=${q}` },
-          travel: { "Google Flights": (q) => `https://www.google.com/flights?q=${q}`, CozyCozy: (q) => `https://www.cozycozy.com/ar/alojamiento/s/${q}`, Skyscanner: (q) => `https://www.espanol.skyscanner.com/transporte/vuelos-desde/buea/${q}`, "Booking.com": (q) => `https://www.booking.com/searchresults.html?ss=${q}`, Airbnb: (q) => `https://www.airbnb.com.ar/s/${q}/homes`, "Despegar.com": (q) => `https://www.despegar.com.ar/search/global/${q}`, Kayak: (q) => `https://www.kayak.com.ar/flights?q=${q}`, Expedia: (q) => `https://www.expedia.com/Hotel-Search?q=${q}`, Almundo: (q) => `https://almundo.com.ar/flights/results/${q}` },
-          finance: { "Google Finance": (q) => `https://www.google.com/finance/search?q=${q}`, "Yahoo Finance": (q) => `https://finance.yahoo.com/lookup?s=${q}`, Bloomberg: (q) => `https://www.bloomberg.com/search?query=${q}`, "TradingView": (q) => `https://www.tradingview.com/symbols/${q}/`, Reuters: (q) => `https://www.reuters.com/search/news?blob=${q}`, "Investing.com": (q) => `https://www.investing.com/search/?q=${q}` },
-          legal: { SAIJ: (q) => `http://www.saij.gob.ar/search?q=${q}`, InfoLEG: (q) => `https://www.google.com/search?q=site:servicios.infoleg.gob.ar+${q}`, "Boletín Oficial": (q) => `https://www.boletinoficial.gob.ar/busqueda?q=${q}`, "Poder Judicial": (q) => `https://www.google.com/search?q=site:cij.gov.ar+${q}` },
-          health: { PubMed: (q) => `https://pubmed.ncbi.nlm.nih.gov/?term=${q}`, "Mayo Clinic": (q) => `https://www.mayoclinic.org/search/search-results?q=${q}`, WebMD: (q) => `https://www.webmd.com/search/search_results/default.aspx?query=${q}`, MedlinePlus: (q) => `https://medlineplus.gov/search?query=${q}`, "Vademecum (AR)": (q) => `https://www.vademecum.es/principios-activos-${q}-ar` },
-          real_estate: { ZonaProp: (q) => `https://www.zonaprop.com.ar/inmuebles-buscar-${q}.html`, ArgenProp: (q) => `https://www.argenprop.com/inmuebles-buscar-${q}`, "ML Inmuebles": (q) => `https://inmuebles.mercadolibre.com.ar/${q.replace(/\s/g, "-")}_NoIndex_True` },
-          gaming: { Steam: (q) => `https://store.steampowered.com/search/?term=${q}`, IGN: (q) => `https://www.ign.com/search?q=${q}`, Metacritic: (q) => `https://www.metacritic.com/search/${q}/`, Twitch: (q) => `https://www.twitch.tv/search?term=${q}`, "PCGamer": (q) => `https://www.pcgamer.com/search?q=${q}` },
-          recipes: { YouTube: (q) => `https://www.youtube.com/results?search_query=${q}+receta`, Allrecipes: (q) => `https://www.allrecipes.com/search/results/?search=${q}`, "Kiwilimón": (q) => `https://www.kiwilimon.com/busqueda?s=${q}`, "Bon Appetit": (q) => `https://www.bonappetit.com/search?q=${q}`, Epicurious: (q) => `https://www.epicurious.com/search?q=${q}`, "Food.com": (q) => `https://www.food.com/search/${q}` },
-          books: { "Google Books": (q) => `https://www.google.com/search?tbm=bks&q=${q}`, Goodreads: (q) => `https://www.goodreads.com/search?q=${q}`, Amazon: (q) => `https://www.amazon.com/s?k=${q}&i=stripbooks`, "Internet Archive": (q) => `https://archive.org/search.php?query=${q}&mediatype=texts`, "Project Gutenberg": (q) => `https://www.gutenberg.org/ebooks/search/?query=${q}`, "Cúspide": (q) => `https://www.cuspide.com/catalogsearch/result/?q=${q}` },
-          podcasts: { Spotify: (q) => `https://open.spotify.com/search/${q}`, "Apple Podcasts": (q) => `https://podcasts.apple.com/us/search?term=${q}`, "Google Podcasts": (q) => `https://podcasts.google.com/search/${q}`, "Listen Notes": (q) => `https://www.listennotes.com/search/?q=${q}`, iVoox: (q) => `https://www.ivoox.com/escuchar-audios_${q}_1.html`, "Pocket Casts": (q) => `https://play.pocketcasts.com/web/search?q=${q}` },
-          torrents: { "1337x": (q) => `https://1337x.to/search/${q}/1/`, "The Pirate Bay": (q) => `https://thepiratebay.org/search.php?q=${q}`, RARBG: (q) => `https://rargb.to/search?search=${q}`, YTS: (q) => `https://yts.mx/browse-movies/${q}/all/all/0/latest/0/all`, EZTV: (q) => `https://eztv.re/search/${q}` },
+        const draw=()=>{
+          ctx.clearRect(0,0,w,h);
+          ctx.fillStyle = "rgba(20,184,166,.10)";
+          particles.forEach(p=>{
+            p.x += Math.cos(p.a)*p.s; p.y += Math.sin(p.a)*p.s;
+            if(p.x<0) p.x=w; if(p.x>w) p.x=0; if(p.y<0) p.y=h; if(p.y>h) p.y=0;
+            ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+          });
+          raf = requestAnimationFrame(draw);
         };
+        resize(); draw();
+        addEventListener("resize", resize);
+        return ()=>{ cancelAnimationFrame(raf); removeEventListener("resize", resize); };
+      },[]);
+    }
 
-        // --- Categorías con iconos para una mejor UI ---
-        const CATEGORIES = [
-          { key: "web", label: "Web", icon: <Icon name="search" className="h-4 w-4" /> },
-          { key: "ai", label: "IA", icon: <Icon name="brainCircuit" className="h-4 w-4" /> },
-          { key: "news", label: "Noticias", icon: <span className="text-lg">📰</span> },
-          { key: "images", label: "Imágenes", icon: <span className="text-lg">🖼️</span> },
-          { key: "videos", label: "Videos", icon: <span className="text-lg">🎬</span> },
-          { key: "gaming", label: "Gaming", icon: <Icon name="gamepad2" className="h-4 w-4" /> },
-          { key: "shopping", label: "Compras", icon: <span className="text-lg">🛒</span> },
-          { key: "jobs", label: "Empleos", icon: <span className="text-lg">💼</span> },
-          { key: "maps", label: "Mapas", icon: <span className="text-lg">🗺️</span> },
-          { key: "dev", label: "Devs", icon: <span className="text-lg">💻</span> },
-          { key: "social", label: "Social", icon: <Icon name="users" className="h-4 w-4" /> },
-          { key: "academic", label: "Académico", icon: <Icon name="bookOpen" className="h-4 w-4" /> },
-          { key: "reference", label: "Referencia", icon: <span className="text-lg">📚</span> },
-          { key: "legal", label: "Legal", icon: <Icon name="scale" className="h-4 w-4" /> },
-          { key: "health", label: "Salud", icon: <Icon name="heartPulse" className="h-4 w-4" /> },
-          { key: "real_estate", label: "Inmuebles", icon: <Icon name="home" className="h-4 w-4" /> },
-          { key: "travel", label: "Viajes", icon: <Icon name="plane" className="h-4 w-4" /> },
-          { key: "recipes", label: "Recetas", icon: <Icon name="utensils" className="h-4 w-4" /> },
-          { key: "finance", label: "Finanzas", icon: <Icon name="trendingUp" className="h-4 w-4" /> },
-          { key: "books", label: "Libros", icon: <Icon name="book" className="h-4 w-4" /> },
-          { key: "podcasts", label: "Podcasts", icon: <Icon name="podcast" className="h-4 w-4" /> },
-          { key: "torrents", label: "Torrents", icon: <Icon name="magnet" className="h-4 w-4" /> },
-        ];
+    /** Confetti muy liviano */
+    function burstConfetti(ms=1200){
+      const c = document.createElement("canvas");
+      Object.assign(c.style,{position:"fixed",inset:0,zIndex:60,pointerEvents:"none"});
+      document.body.appendChild(c);
+      const ctx=c.getContext("2d");
+      const DPR=Math.min(devicePixelRatio||1,2);
+      let w=c.width=innerWidth*DPR,h=c.height=innerHeight*DPR;
+      c.style.width=innerWidth+"px"; c.style.height=innerHeight+"px";
+      const colors=["#14b8a6","#06b6d4","#8b5cf6","#f59e0b","#ef4444"];
+      const N=140;
+      const parts=Array.from({length:N},(_,i)=>({x:w/2,y:h*.25, vx:(Math.random()-0.5)*6, vy:(Math.random()*-6-4), g:0.18, r:Math.random()*6+3, c:colors[i%colors.length], a:1, rot:Math.random()*Math.PI }));
+      let t=0, raf;
+      const step=()=>{
+        ctx.clearRect(0,0,w,h);
+        parts.forEach(p=>{
+          p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.a-=.006; p.rot+=.1;
+          ctx.globalAlpha=Math.max(p.a,0);
+          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+          ctx.fillStyle=p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r);
+          ctx.restore();
+        });
+        ctx.globalAlpha=1;
+        if(t<ms){ t+=16; raf=requestAnimationFrame(step);} else { cancelAnimationFrame(raf); c.remove(); }
+      };
+      step();
+    }
 
-        // --- Funciones de Utilidad ---
-        const openUrlSafe = (url) => window.open(url, "_blank", "noopener,noreferrer");
-        const enc = (s) => encodeURIComponent(s.trim());
+    function ConfirmModal({ isOpen, onClose, onConfirm, title, children }){
+      if(!isOpen) return null;
+      return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose} role="dialog" aria-modal="true">
+          <div className="bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-sm text-white border border-gray-700 fade-in" onClick={(e)=>e.stopPropagation()}>
+            <div className="flex items-center gap-3">
+              <Icon name="alertTriangle" className="h-8 w-8 text-yellow-400"/>
+              <h3 className="text-lg font-bold text-yellow-300">{title}</h3>
+            </div>
+            <div className="mt-4 text-gray-300 text-sm">{children}</div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-600 hover:bg-gray-500 t-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-gray-500">Cancelar</button>
+              <button onClick={onConfirm} className="px-4 py-2 rounded-md text-sm font-medium bg-yellow-600 hover:bg-yellow-500 t-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-500">Continuar</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
-        // --- Componentes de UI ---
-        function ConfirmModal({ isOpen, onClose, onConfirm, title, children }) {
-            if (!isOpen) return null;
+    function SmartSearchApp(){
+      useFxCanvas();
 
-            return (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-                    <div className="bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-sm text-white border border-gray-700 fade-in" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-3">
-                            <Icon name="alertTriangle" className="h-8 w-8 text-yellow-400"/>
-                            <h3 className="text-lg font-bold text-yellow-300">{title}</h3>
-                        </div>
-                        <div className="mt-4 text-gray-300 text-sm">
-                            {children}
-                        </div>
-                        <div className="mt-6 flex justify-end gap-3">
-                            <button onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-600 hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-gray-500">
-                                Cancelar
-                            </button>
-                            <button onClick={onConfirm} className="px-4 py-2 rounded-md text-sm font-medium bg-yellow-600 hover:bg-yellow-500 text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-500">
-                                Continuar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
+      const [query,setQuery] = useState("");
+      const [category,setCategory] = useState("web");
+      const [recents,setRecents] = useState([]);
+      const [isCopied,setIsCopied] = useState(false);
+      const [isConfirmModalOpen,setConfirmModalOpen] = useState(false);
+      const [fxEnabled,setFxEnabled] = useState(true);
+      const inputRef = useRef(null);
+
+      // Estado inicial (localStorage)
+      useEffect(()=>{
+        setQuery(localStorage.getItem("smartsearch:lastQuery")||"");
+        setCategory(localStorage.getItem("smartsearch:lastCat")||"web");
+        try{
+          const saved = JSON.parse(localStorage.getItem("smartsearch:recents")||"[]");
+          if(Array.isArray(saved)) setRecents(saved.slice(0,18));
+        }catch{ setRecents([]); }
+      },[]);
+      useEffect(()=>{ localStorage.setItem("smartsearch:lastQuery", query); },[query]);
+      useEffect(()=>{ localStorage.setItem("smartsearch:lastCat", category); },[category]);
+
+      const categoryEngines = useMemo(()=> ENGINES[category], [category]);
+      const engineNames = useMemo(()=> Object.keys(categoryEngines||{}), [categoryEngines]);
+      const hasQuery = query.trim().length>0;
+
+      const addQueryToRecents = ()=>{
+        if(hasQuery){
+          setRecents(prev=>{
+            const next=[query,...prev.filter(x=>x!==query)].slice(0,18);
+            localStorage.setItem("smartsearch:recents", JSON.stringify(next));
+            return next;
+          });
         }
+      };
 
-        function SmartSearchApp() {
-            const [query, setQuery] = useState("");
-            const [category, setCategory] = useState("web");
-            const [recents, setRecents] = useState([]);
-            const [isCopied, setIsCopied] = useState(false);
-            const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-            const inputRef = useRef(null);
+      const makeRipple = (e)=>{
+        const btn = e.currentTarget;
+        const r = document.createElement("span");
+        r.className="ripple";
+        r.style.left = e.offsetX+"px"; r.style.top = e.offsetY+"px";
+        btn.appendChild(r); setTimeout(()=>r.remove(), 650);
+      };
 
-            // Cargar estado inicial desde localStorage
-            useEffect(() => {
-                setQuery(localStorage.getItem("smartsearch:lastQuery") || "");
-                setCategory(localStorage.getItem("smartsearch:lastCat") || "web");
-                try {
-                    const saved = JSON.parse(localStorage.getItem("smartsearch:recents") || "[]");
-                    if (Array.isArray(saved)) setRecents(saved.slice(0, 15));
-                } catch {
-                    setRecents([]);
-                }
-            }, []);
+      const handleOpen = (engineName) => (e) => {
+        if(!hasQuery) return;
+        const fn = categoryEngines[engineName];
+        if(!fn) return;
+        makeRipple(e);
+        openUrlSafe(fn(enc(query)));
+        addQueryToRecents();
+      };
 
-            // Guardar estado en localStorage
-            useEffect(() => { localStorage.setItem("smartsearch:lastQuery", query); }, [query]);
-            useEffect(() => { localStorage.setItem("smartsearch:lastCat", category); }, [category]);
+      const handleSearchAll = () => { if(!hasQuery) return; setConfirmModalOpen(true); };
+      const executeSearchAll = () => {
+        engineNames.forEach(n=> openUrlSafe(categoryEngines[n](enc(query))) );
+        addQueryToRecents();
+        setConfirmModalOpen(false);
+        if(fxEnabled) burstConfetti(1300);
+      };
 
-            const categoryEngines = useMemo(() => ENGINES[category], [category]);
-            const hasQuery = query.trim().length > 0;
+      // Atajos de teclado
+      useEffect(()=>{
+        const onKey = (e)=>{
+          const isMac = navigator.platform.toUpperCase().includes("MAC");
+          if((isMac? e.metaKey: e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); inputRef.current?.focus(); inputRef.current?.select(); }
+          if(e.key==="Escape"){ if(query) setQuery(""); }
+          if(e.key==="Enter" && document.activeElement===inputRef.current){ const first = engineNames[0]; if(first) openUrlSafe(categoryEngines[first](enc(query))), addQueryToRecents(); }
+        };
+        window.addEventListener("keydown", onKey);
+        return ()=> window.removeEventListener("keydown", onKey);
+      },[engineNames, categoryEngines, query]);
 
-            const addQueryToRecents = () => {
-                if (hasQuery) {
-                    setRecents((prev) => {
-                        const next = [query, ...prev.filter((x) => x !== query)].slice(0, 15);
-                        localStorage.setItem("smartsearch:recents", JSON.stringify(next));
-                        return next;
-                    });
-                }
-            };
+      const copyQuery = ()=>{
+        if(!query||!navigator.clipboard) return;
+        navigator.clipboard.writeText(query).then(()=>{
+          setIsCopied(true); setTimeout(()=>setIsCopied(false), 1600);
+        }).catch(()=>{});
+      };
 
-            const handleOpen = (engineName) => {
-                if (!hasQuery) return;
-                const fn = categoryEngines[engineName];
-                if (!fn) return;
-                const url = fn(enc(query));
-                openUrlSafe(url);
-                addQueryToRecents();
-            };
+      const searchOperators = [
+        { op: '"frase exacta"', desc: 'Busca la frase de manera literal.' },
+        { op: '-palabra', desc: 'Excluye una palabra.' },
+        { op: 'palabra OR palabra', desc: 'Una u otra (o ambas).' },
+        { op: 'site:dominio.com', desc: 'Limita a un dominio.' },
+        { op: 'filetype:pdf', desc: 'Filtra por tipo de archivo.' },
+        { op: 'intitle:palabra', desc: 'En el título.' },
+        { op: 'inurl:palabra', desc: 'En la URL.' },
+        { op: 'intext:palabra', desc: 'En el cuerpo del texto.' },
+        { op: 'before:AAAA-MM-DD', desc: 'Antes de una fecha.' },
+        { op: 'after:AAAA-MM-DD', desc: 'Después de una fecha.' },
+        { op: '$10..$100', desc: 'Rango de números/precio.' },
+        { op: 'palabra AROUND(n) palabra', desc: 'Cercanía entre términos.' },
+      ];
 
-            const handleSearchAll = () => {
-                if (!hasQuery) return;
-                setConfirmModalOpen(true);
-            };
-            
-            const executeSearchAll = () => {
-                Object.values(categoryEngines).forEach(fn => {
-                    const url = fn(enc(query));
-                    openUrlSafe(url);
-                });
-                addQueryToRecents();
-                setConfirmModalOpen(false);
-            };
+      return (
+        <div className="p-4">
+          <div className="max-w-6xl mx-auto space-y-6 fade-in">
+            <header className="text-center space-y-2">
+              <h1 className="text-4xl sm:text-6xl font-extrabold shimmer">Buscador Inteligente Definitivo</h1>
+              <p className="text-gray-400">Tu centro de búsqueda para toda la web — versión turbo con animaciones.</p>
+            </header>
 
-            // Atajos de teclado
-            useEffect(() => {
-                const onKey = (e) => {
-                    const isMac = navigator.platform.toUpperCase().includes("MAC");
-                    if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "k") {
-                        e.preventDefault();
-                        inputRef.current?.focus();
-                        inputRef.current?.select();
-                    }
-                    if (e.key === "Escape") {
-                        if (query) setQuery("");
-                    }
-                    if (e.key === "Enter" && document.activeElement === inputRef.current) {
-                        const firstEngineName = Object.keys(categoryEngines)[0];
-                        if (firstEngineName) handleOpen(firstEngineName);
-                    }
-                };
-                window.addEventListener("keydown", onKey);
-                return () => window.removeEventListener("keydown", onKey);
-            }, [categoryEngines, hasQuery, query]);
-
-            const copyQuery = () => {
-                if (!query || !navigator.clipboard) return;
-                navigator.clipboard.writeText(query).then(() => {
-                    setIsCopied(true);
-                    setTimeout(() => setIsCopied(false), 2000);
-                }).catch(err => console.error("Fallo al copiar: ", err));
-            };
-
-            const searchOperators = [
-                { op: '"frase exacta"', desc: 'Busca la frase de manera literal.' },
-                { op: '-palabra', desc: 'Excluye resultados que contengan esa palabra.' },
-                { op: 'palabra OR palabra', desc: 'Busca una palabra o la otra (o ambas).' },
-                { op: 'palabra AND palabra', desc: 'Exige que ambas palabras aparezcan.' },
-                { op: '*', desc: 'Actúa como comodín para una o más palabras.' },
-                { op: '( )', desc: 'Agrupa términos para búsquedas complejas.' },
-                { op: 'site:dominio.com', desc: 'Limita la búsqueda a un sitio web específico.' },
-                { op: 'filetype:pdf', desc: 'Busca tipos de archivo específicos (pdf, docx, etc).' },
-                { op: 'ext:pdf', desc: 'Similar a filetype, busca extensiones de archivo.' },
-                { op: 'related:URL', desc: 'Encuentra sitios web similares a una URL dada.' },
-                { op: 'cache:URL', desc: 'Muestra la versión en caché de una página.' },
-                { op: 'intitle:palabra', desc: 'Busca una palabra en el título de la página.' },
-                { op: 'allintitle:palabras', desc: 'Exige que todas las palabras estén en el título.' },
-                { op: 'inurl:palabra', desc: 'Busca una palabra dentro de la URL.' },
-                { op: 'allinurl:palabras', desc: 'Exige que todas las palabras estén en la URL.' },
-                { op: 'intext:palabra', desc: 'Busca una palabra en el cuerpo del texto.' },
-                { op: 'allintext:palabras', desc: 'Exige que todas las palabras estén en el texto.' },
-                { op: 'before:AAAA-MM-DD', desc: 'Resultados publicados antes de una fecha.' },
-                { op: 'after:AAAA-MM-DD', desc: 'Resultados publicados después de una fecha.' },
-                { op: 'define:palabra', desc: 'Muestra la definición de una palabra.' },
-                { op: 'source:nombre', desc: 'Busca en una fuente específica en Google News.' },
-                { op: 'loc:lugar', desc: 'Limita noticias a una ubicación geográfica.' },
-                { op: 'palabra AROUND(n) palabra', desc: 'Busca palabras a una distancia de N palabras.' },
-                { op: '$10..$100', desc: 'Busca en un rango de precios o números.' },
-                { op: '#hashtag', desc: 'Busca hashtags en redes sociales.' },
-                { op: '@mencion', desc: 'Busca menciones a usuarios en redes sociales.' },
-            ];
-
-            return (
-                <div className="min-h-screen text-gray-200 p-4 font-sans selection:bg-teal-500 selection:text-white">
-                    <div className="w-full max-w-5xl mx-auto fade-in pb-8">
-                        <header className="text-center mb-6">
-                            <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-500 animate-pulse">
-                                Buscador Inteligente Definitivo
-                            </h1>
-                            <p className="text-gray-400 mt-1">
-                                Tu centro de búsqueda para toda la web.
-                            </p>
-                        </header>
-
-                        <main className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 p-4 sm:p-6 flex flex-col gap-5">
-                            <div className="relative" role="search">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-80 pointer-events-none">
-                                    <Icon name="search" className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    ref={inputRef}
-                                    id="query"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    placeholder="Escribe tu búsqueda aquí…"
-                                    autoFocus
-                                    autoComplete="off"
-                                    className="w-full px-4 py-3 pl-12 pr-24 rounded-lg bg-gray-900 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-                                />
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                                    <button onClick={copyQuery} title="Copiar búsqueda" className="p-1 rounded-full hover:bg-gray-700/60 disabled:opacity-50 transition-all" disabled={!hasQuery || isCopied}>
-                                        {isCopied ? <Icon name="check" className="h-4 w-4 text-teal-400" /> : <Icon name="clipboardCopy" className="h-4 w-4 text-gray-400 hover:text-white" />}
-                                    </button>
-                                    {hasQuery && (
-                                        <button onClick={() => setQuery("")} title="Limpiar (Esc)" className="p-1 rounded-full hover:bg-gray-700/60 transition-all">
-                                            <Icon name="x" className="h-5 w-5 text-gray-400 hover:text-white" />
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                            <p className="text-xs text-center sm:text-left text-gray-400 -mt-2">
-                                <kbd className="px-1.5 py-0.5 text-xs rounded bg-gray-700 border-b-2 border-gray-600">Ctrl</kbd>+
-                                <kbd className="px-1.5 py-0.5 text-xs rounded bg-gray-700 border-b-2 border-gray-600">K</kbd> para enfocar
-                            </p>
-
-                            <label className="block text-sm">
-                                <span className="text-gray-400 font-medium mb-2 block">Categoría de Búsqueda</span>
-                                <div className="relative">
-                                    <select
-                                        className="w-full appearance-none px-4 py-3 rounded-lg bg-gray-900 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all pr-10"
-                                        value={category}
-                                        onChange={(e) => setCategory(e.target.value)}
-                                        aria-label="Seleccionar categoría"
-                                    >
-                                        {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
-                                    </select>
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none flex items-center gap-2">
-                                        {CATEGORIES.find(c => c.key === category)?.icon}
-                                        <Icon name="chevronDown" className="h-4 w-4" />
-                                    </div>
-                                </div>
-                            </label>
-
-                            <div className="border-t border-gray-700 pt-5 min-h-[200px]">
-                                {!hasQuery ? (
-                                    <div className="text-center text-gray-500 flex flex-col items-center justify-center h-full pt-4 fade-in">
-                                        <Icon name="search" className="h-10 w-10 mb-2 opacity-30"/>
-                                        <p>Escribe algo para ver los motores de búsqueda.</p>
-                                        <p className="text-xs mt-1">Presiona <kbd className="px-1.5 py-0.5 text-xs rounded bg-gray-700 border-b-2 border-gray-600">Enter</kbd> para buscar en el primer motor.</p>
-                                    </div>
-                                ) : (
-                                    <div className="fade-in">
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                                            {Object.entries(categoryEngines).map(([name], i) => (
-                                                <button key={name} onClick={() => handleOpen(name)} title={`Buscar en ${name}`} className="bg-gray-700/50 text-gray-200 border border-gray-600 rounded-lg p-3 hover:bg-teal-500 hover:text-white hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 transition-all text-sm font-medium active:scale-95 flex items-center justify-between gap-2">
-                                                    <span className="truncate">{name}</span>
-                                                    <Icon name="externalLink" className="h-4 w-4 opacity-80 flex-shrink-0" />
-                                                </button>
-                                            ))}
-                                        </div>
-                                         <button onClick={handleSearchAll} className="w-full mt-4 bg-teal-600/80 text-white font-bold rounded-lg p-3 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 transition-all text-sm active:scale-95 flex items-center justify-center gap-2">
-                                            Buscar en todos ({Object.keys(categoryEngines).length})
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-
-                            {recents.length > 0 && (
-                                <div className="border-t border-gray-700 pt-4">
-                                    <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                                        <div className="inline-flex items-center gap-1.5 font-medium"><Icon name="history" className="h-3.5 w-3.5" /> Búsquedas Recientes</div>
-                                        <button className="inline-flex items-center gap-1 hover:text-red-400 transition-colors" onClick={() => { localStorage.removeItem("smartsearch:recents"); setRecents([]); }} title="Borrar historial">
-                                            <Icon name="trash2" className="h-3.5 w-3.5" /> Limpiar
-                                        </button>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {recents.map((q) => (
-                                            <button key={q} className="text-xs bg-gray-800/70 border border-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-700 transition-colors" onClick={() => setQuery(q)} title={q}>
-                                                {q}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            <details className="text-sm text-gray-400 mt-4">
-                                <summary className="cursor-pointer text-teal-400 hover:text-teal-300 transition-colors inline-flex items-center gap-1 font-medium">
-                                    <Icon name="info" className="h-4 w-4" /> Guía de Operadores de Búsqueda
-                                </summary>
-                                <div className="bg-gray-900/50 p-4 mt-2 rounded-md border border-gray-700 text-xs">
-                                    <p className="mb-4 font-bold text-gray-300">Usa estos operadores en el campo de búsqueda para refinar tus resultados.</p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                                        {searchOperators.map(({ op, desc }) => (
-                                            <div key={op}>
-                                                <code className="text-teal-300 bg-gray-700 px-1.5 py-0.5 rounded">{op}</code>
-                                                <p className="text-gray-400 mt-1">{desc}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </details>
-                        </main>
-
-                    </div>
-                    <ConfirmModal 
-                        isOpen={isConfirmModalOpen} 
-                        onClose={() => setConfirmModalOpen(false)}
-                        onConfirm={executeSearchAll}
-                        title="Confirmar Búsqueda Múltiple"
-                    >
-                        <p>Esto abrirá <strong>{categoryEngines ? Object.keys(categoryEngines).length : 0}</strong> pestañas nuevas en tu navegador.</p>
-                        <p className="mt-2">¿Estás seguro de que quieres continuar?</p>
-                    </ConfirmModal>
+            {/* Panel principal con borde gradiente animado */}
+            <div className="agb rounded-2xl">
+              <main className="bg-gray-800/60 rounded-2xl p-5 sm:p-7 backdrop-blur t-all">
+                {/* Barra de acciones */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400">Efectos</span>
+                    <button onClick={()=>setFxEnabled(x=>!x)} className={"btn mag px-3 py-1.5 rounded-full text-xs font-semibold border t-all "+(fxEnabled?"bg-teal-600/70 border-teal-400/40":"bg-gray-700/70 border-gray-600/70")}>
+                      {fxEnabled? "ON":"OFF"}
+                    </button>
+                  </div>
+                  <div className="text-xs text-gray-400">Motores en categoría: <span className="text-teal-300 font-semibold">{engineNames.length}</span></div>
+                  <div className="flex-1"></div>
+                  <div className="hidden sm:flex items-center text-xs text-gray-400 gap-1">
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-700 border-b-2 border-gray-600">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 rounded bg-gray-700 border-b-2 border-gray-600">K</kbd> enfocar
+                  </div>
                 </div>
-            );
-        }
 
-        ReactDOM.render(<SmartSearchApp />, document.getElementById('root'));
-    </script>
+                {/* Entrada de búsqueda */}
+                <div className="relative mb-2" role="search">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-80 pointer-events-none">
+                    <Icon name="search" className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    ref={inputRef}
+                    id="query"
+                    value={query}
+                    onChange={(e)=>setQuery(e.target.value)}
+                    placeholder="Escribe tu búsqueda aquí…"
+                    autoFocus
+                    autoComplete="off"
+                    className="w-full px-4 py-3 pl-12 pr-28 rounded-lg bg-gray-900/90 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-4 focus:ring-[var(--ring)] focus:border-teal-500 t-all"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <button onClick={copyQuery} title="Copiar búsqueda" className="btn p-1.5 rounded-full hover:bg-white/10 disabled:opacity-50 t-all" disabled={!hasQuery || isCopied}>
+                      {isCopied? <Icon name="check" className="h-4 w-4 text-teal-400"/> : <svg xmlns='http://www.w3.org/2000/svg' className='h-4 w-4 text-gray-300' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><rect x='9' y='9' width='13' height='13' rx='2' ry='2'></rect><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'></path></svg>}
+                    </button>
+                    {hasQuery && (
+                      <button onClick={()=>setQuery("")} title="Limpiar (Esc)" className="btn p-1.5 rounded-full hover:bg-white/10 t-all">
+                        <Icon name="x" className="h-5 w-5 text-gray-300" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Selector de categoría */}
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                  {CATEGORIES.map(c=>(
+                    <button key={c.key} onClick={()=>setCategory(c.key)} className={"btn text-xs px-3 py-1.5 rounded-full border t-all "+(category===c.key? "bg-teal-600/70 border-teal-400/40":"bg-gray-700/50 border-gray-600/70 hover:bg-gray-700/80")}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Grid de motores */}
+                <div className="border-t border-gray-700 pt-5 min-h-[200px]">
+                  {!hasQuery ? (
+                    <div className="text-center text-gray-500 flex flex-col items-center justify-center h-full pt-4 fade-in">
+                      <Icon name="search" className="h-10 w-10 mb-2 opacity-30"/>
+                      <p>Escribe algo para ver los motores de búsqueda.</p>
+                      <p className="text-xs mt-1">Pulsa <kbd className="px-1.5 py-0.5 rounded bg-gray-700 border-b-2 border-gray-600">Enter</kbd> para abrir el primero.</p>
+                    </div>
+                  ) : (
+                    <div className="fade-in">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                        {engineNames.map((name)=>(
+                          <button key={name} onClick={handleOpen(name)} title={`Buscar en ${name}`}
+                            className="card btn mag relative bg-gray-800/60 text-gray-200 border border-gray-700 rounded-lg p-3 hover:bg-teal-600/80 hover:text-white hover:border-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 t-all text-sm font-medium active:scale-[.98] flex items-center justify-between gap-2">
+                            <span className="truncate">{name}</span>
+                            <Icon name="externalLink" className="h-4 w-4 opacity-90 flex-shrink-0" />
+                          </button>
+                        ))}
+                      </div>
+                      <button onClick={handleSearchAll} className="btn w-full mt-4 bg-gradient-to-r from-teal-600/90 via-cyan-600/90 to-fuchsia-600/90 text-white font-bold rounded-lg p-3 hover:from-teal-500 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 t-all text-sm active:scale-[.98] flex items-center justify-center gap-2">
+                        Buscar en todos ({engineNames.length})
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {recents.length>0 && (
+                  <div className="border-t border-gray-700 pt-4">
+                    <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                      <div className="inline-flex items-center gap-1.5 font-medium"><svg xmlns='http://www.w3.org/2000/svg' className='h-3.5 w-3.5' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M1 4v6h6'></path><path d='M3.51 15a9 9 0 1 0 2.19-9.51L1 10'></path></svg> Búsquedas Recientes</div>
+                      <button className="inline-flex items-center gap-1 hover:text-red-400 t-all" onClick={()=>{ localStorage.removeItem("smartsearch:recents"); setRecents([]); }} title="Borrar historial">
+                        <svg xmlns='http://www.w3.org/2000/svg' className='h-3.5 w-3.5' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><polyline points='3 6 5 6 21 6'></polyline><path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'></path><line x1='10' y1='11' x2='10' y2='17'></line><line x1='14' y1='11' x2='14' y2='17'></line></svg> Limpiar
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {recents.map((q)=>(
+                        <button key={q} className="text-xs bg-gray-800/70 border border-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-700 t-all" onClick={()=>setQuery(q)} title={q}>
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <details className="text-sm text-gray-400 mt-4 group">
+                  <summary className="cursor-pointer text-teal-400 hover:text-teal-300 t-all inline-flex items-center gap-1 font-medium">
+                    <svg xmlns='http://www.w3.org/2000/svg' className='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg> Guía de Operadores de Búsqueda
+                  </summary>
+                  <div className="bg-gray-900/60 p-4 mt-2 rounded-md border border-gray-700 text-xs fade-in">
+                    <p className="mb-4 font-bold text-gray-300">Refina resultados como un pro.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                      {searchOperators.map(({op,desc})=>(
+                        <div key={op}>
+                          <code className="text-teal-300 bg-gray-700/70 px-1.5 py-0.5 rounded">{op}</code>
+                          <p className="text-gray-400 mt-1">{desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </details>
+              </main>
+            </div>
+          </div>
+
+          {/* Modal de confirmación */}
+          <ConfirmModal
+            isOpen={isConfirmModalOpen}
+            onClose={()=>setConfirmModalOpen(false)}
+            onConfirm={executeSearchAll}
+            title="Confirmar Búsqueda Múltiple"
+          >
+            <p>Esto abrirá <strong>{engineNames.length}</strong> pestañas nuevas en tu navegador.</p>
+            <p className="mt-2">¿Estás seguro de que quieres continuar?</p>
+          </ConfirmModal>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<SmartSearchApp />, document.getElementById("root"));
+  </script>
 </body>
 </html>

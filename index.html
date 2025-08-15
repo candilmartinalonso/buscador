@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Buscador Inteligente Definitivo — Turbo</title>
+  <title>Buscador Inteligente Definitivo — Quantum</title>
 
   <!-- Fuente -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,18 +19,39 @@
 
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Tone.js for Sound FX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
 
   <style>
     :root{
-      --bg1:#0b1220;--bg2:#0f172a;
-      --acc1:#14b8a6;--acc2:#06b6d4;--acc3:#8b5cf6;
-      --ring: rgba(20,184,166,.55);
+      --bg1: #0b1220;
+      --bg2: #0f172a;
+      --acc1: #14b8a6;
+      --acc2: #06b6d4;
+      --acc3: #8b5cf6;
+      --ring: rgba(20, 184, 166, .55);
     }
-    html,body{height:100%}
-    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";background: radial-gradient(1200px 600px at 10% -10%, #0ea5e920, transparent 60%), radial-gradient(900px 500px at 110% 10%, #14b8a620, transparent 60%), linear-gradient(180deg,var(--bg1),var(--bg2));}
+    html,body{height:100%; overflow-x: hidden;}
+    body{
+        font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+        background: var(--bg2);
+        background-attachment: fixed;
+        transition: background .5s ease;
+    }
+    #background-gradient {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(1200px 600px at 10% -10%, var(--acc2-t, #0ea5e920), transparent 60%), radial-gradient(900px 500px at 110% 10%, var(--acc1-t, #14b8a620), transparent 60%), linear-gradient(180deg, var(--bg1), var(--bg2));
+        transition: all .5s ease;
+        z-index: -2;
+    }
     /* Scrollbar */
     ::-webkit-scrollbar{width:10px;height:10px}
-    ::-webkit-scrollbar-track{background:#0f172a}
+    ::-webkit-scrollbar-track{background: var(--bg2);}
     ::-webkit-scrollbar-thumb{background:#334155;border-radius:8px}
     ::-webkit-scrollbar-thumb:hover{background:#475569}
     /* Global transitions */
@@ -38,12 +59,12 @@
     .fade-in{animation:fadeIn .6s ease both}
     @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
     /* Shimmer text */
-    .shimmer{background:linear-gradient(90deg,#fff, #a7f3d0 30%, #93c5fd 60%, #e9d5ff);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:300% 100%;animation:shine 2.5s linear infinite}
+    .shimmer{background:linear-gradient(90deg,#fff, var(--acc1) 30%, var(--acc2) 60%, var(--acc3));-webkit-background-clip:text;background-clip:text;color:transparent;background-size:300% 100%;animation:shine 2.5s linear infinite}
     @keyframes shine{0%{background-position:0 0}100%{background-position:300% 0}}
     /* Animated gradient border container */
     .agb{position:relative}
     .agb:before{content:"";position:absolute;inset:-2px;border-radius:1.2rem;padding:2px;background:
-      conic-gradient(from 0deg, rgba(20,184,166,.8), rgba(6,182,212,.8), rgba(139,92,246,.8), rgba(20,184,166,.8));
+      conic-gradient(from 0deg, var(--acc1), var(--acc2), var(--acc3), var(--acc1));
       -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
       -webkit-mask-composite:xor;mask-composite:exclude;animation:spin 6s linear infinite}
     @keyframes spin{to{transform:rotate(1turn)}}
@@ -60,140 +81,83 @@
     .card:hover{box-shadow:0 14px 30px -6px rgba(0,0,0,.7); transform: translateY(-4px);}
     /* Operators grid monospace */
     code{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+    
+    .engine-item { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    
+    .search-all-btn { background: linear-gradient(270deg, var(--acc1), var(--acc2), var(--acc3)); background-size: 200% 200%; animation: gradientShift 3s ease infinite; }
+    @keyframes gradientShift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
+    
+    .card-glow:after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: inherit; box-shadow: 0 0 15px color-mix(in srgb, var(--acc1) 20%, transparent); opacity: 0; transition: opacity 0.3s ease; z-index: -1; }
+    .card-glow:hover:after { opacity: 1; }
+    
+    .floating { animation: float 6s ease-in-out infinite; }
+    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+    
+    .text-gradient { background: linear-gradient(90deg, var(--acc1), var(--acc2), var(--acc3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    
+    .input-breathing { animation: breath 2.5s ease-in-out infinite; }
+    @keyframes breath {
+        0%, 100% { box-shadow: 0 0 10px 0px color-mix(in srgb, var(--acc1) 30%, transparent); }
+        50% { box-shadow: 0 0 25px 5px color-mix(in srgb, var(--acc1) 55%, transparent); }
+    }
+
     /* Prefers reduced motion */
     @media (prefers-reduced-motion: reduce){
-      .t-all, .fade-in, .agb:before, .btn::after {animation:none !important; transition:none !important}
-    }
-    
-    /* Nuevos efectos y optimizaciones */
-    .glow-border {
-      position: relative;
-    }
-    .glow-border:before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      padding: 1px;
-      background: linear-gradient(45deg, var(--acc1), var(--acc2), var(--acc3));
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .glow-border:hover:before {
-      opacity: 0.6;
-    }
-    
-    .engine-item {
-      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-    }
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    
-    .search-all-btn {
-      background: linear-gradient(270deg, #14b8a6, #06b6d4, #8b5cf6);
-      background-size: 200% 200%;
-      animation: gradientShift 3s ease infinite;
-    }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50% }
-      50% { background-position: 100% 50% }
-      100% { background-position: 0% 50% }
-    }
-    
-    .card-glow {
-      position: relative;
-      z-index: 1;
-    }
-    .card-glow:after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: inherit;
-      box-shadow: 0 0 15px rgba(20, 184, 166, 0.2);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: -1;
-    }
-    .card-glow:hover:after {
-      opacity: 1;
-    }
-    
-    .floating {
-      animation: float 6s ease-in-out infinite;
-    }
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0px); }
-    }
-    
-    .text-gradient {
-      background: linear-gradient(90deg, var(--acc1), var(--acc2), var(--acc3));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .particle-trail {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--acc1);
-      pointer-events: none;
-      opacity: 0.8;
-      z-index: 10;
+      .t-all, .fade-in, .agb:before, .btn::after, .floating, .input-breathing, .shimmer, .search-all-btn {animation:none !important; transition:none !important}
     }
   </style>
 </head>
 <body class="min-h-screen text-gray-100 selection:bg-teal-500/70 selection:text-white">
-  <!-- Floating FX Canvas -->
-  <canvas id="fx-canvas" class="fixed inset-0 -z-10"></canvas>
+  <div id="background-gradient"></div>
+  <canvas id="orb-canvas" class="fixed inset-0 -z-10 pointer-events-none"></canvas>
   
-  <!-- Particle trails -->
-  <div id="particle-trails"></div>
-
   <div id="root"></div>
 
   <script type="text/babel">
-    const {useEffect,useMemo,useRef,useState} = React;
+    const {useEffect,useMemo,useRef,useState, useCallback} = React;
 
-    /** Iconos SVG (ligeros) */
+    /** Iconos SVG */
     const Icon = ({ name, className }) => {
       const icons = {
         search: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
         x: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
-        chevronDown: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>,
         externalLink: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>,
         history: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.19-9.51L1 10"></path></svg>,
         trash2: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>,
         clipboardCopy: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>,
         info: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>,
         check: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg>,
-        users: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
-        trendingUp: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>,
         alertTriangle: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>,
-        bookOpen: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
-        scale: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 16l3-8 3 8c-2 1-4 1-6 0z"></path><path d="M2 16l3-8 3 8c-2 1-4 1-6 0z"></path><path d="M12 2v20"></path><path d="M12 6H4.5a2.5 2.5 0 0 0-2.2 3.9l.8 1.1"></path><path d="M12 6h7.5a2.5 2.5 0 0 1 2.2 3.9l-.8 1.1"></path><path d="M4 12h16"></path></svg>,
-        heartPulse: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M19.5 12.5c0-1.5-1-3-2.5-3s-2.5 1.5-2.5 3c0 1.5 1 3 2.5 3s2.5-1.5 2.5-3z"></path><path d="M22 12.5c0-1.5-1-3-2.5-3s-2.5 1.5-2.5 3c0 1.5 1 3 2.5 3s2.5-1.5 2.5-3z"></path><path d="M2 12.5c0-1.5 1-3 2.5-3s2.5 1.5 2.5 3c0 1.5-1 3-2.5 3s-2.5-1.5-2.5-3z"></path><path d="M4.5 12.5H22"></path></svg>,
-        home: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
-        gamepad2: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.97 3.59c-.23 1.25-.05 2.6.52 3.82a4 4 0 0 0 3.45 2.59H12v2.5a2.5 2.5 0 0 0 5 0V15h.02a4 4 0 0 0 3.47-2.59c.57-1.22.75-2.57.52-3.82A4 4 0 0 0 17.32 5z"/></svg>,
-        plane: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>,
-        podcast: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4"></circle><rect x="2" y="8" width="20" height="8" rx="2"></rect><path d="M12 16v3"></path><path d="M8 19h8"></path></svg>,
-        magnet: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 9l-4 4"></path><path d="M14 2H8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path><path d="M8 2v4"></path><path d="M14 2v4"></path><path d="M8 16h4"></path></svg>,
+        settings: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>,
+        // Category icons
+        web: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>,
+        ai: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 8V4H8"></path><rect x="4" y="12" width="16" height="8" rx="2"></rect><path d="M6 18h2"></path><path d="M12 12v-2a3 3 0 0 0-3-3H6"></path></svg>,
+        news: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
+        images: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>,
+        videos: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>,
+        gaming: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>,
+        shopping: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
+        jobs: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>,
+        maps: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>,
+        dev: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>,
+        social: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
+        academic: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>,
+        reference: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>,
+        legal: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>,
+        health: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>,
+        real_estate: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
+        travel: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>,
+        recipes: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
+        finance: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>,
+        books: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>,
+        podcasts: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="2"></circle><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20z"></path><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>,
+        torrents: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2v20"></path><path d="M12 2L8 6"></path><path d="M12 2l4 4"></path><path d="M12 22l-4-4"></path><path d="M12 22l4-4"></path></svg>,
       };
       return icons[name] || null;
     };
-
-    /* Motores completos */
+    
+    /* Motores y Categorías */
     const ENGINES = {
       web: { Google: q=>`https://www.google.com/search?q=${q}`, Yahoo: q=>`https://search.yahoo.com/search?p=${q}`, Bing: q=>`https://www.bing.com/search?q=${q}`, DuckDuckGo: q=>`https://duckduckgo.com/?q=${q}`, Brave: q=>`https://search.brave.com/search?q=${q}`, Ecosia: q=>`https://www.ecosia.org/search?q=${q}`, Perplexity: q=>`https://www.perplexity.ai/search?q=${q}`, You: q=>`https://you.com/search?q=${q}`, Startpage: q=>`https://www.startpage.com/search?q=${q}`, Qwant: q=>`https://www.qwant.com/?q=${q}`, Searx: q=>`https://searx.space/search?q=${q}`, Swisscows: q=>`https://swisscows.com/web?query=${q}` },
       news: { "Google News": q=>`https://news.google.com/search?q=${q}`, Reuters: q=>`https://www.reuters.com/site-search/?query=${q}`, "Associated Press": q=>`https://apnews.com/search?q=${q}`, BBC: q=>`https://www.bbc.co.uk/search?q=${q}`, Clarín: q=>`https://www.clarin.com/buscar/${q}`, "La Nación": q=>`https://www.lanacion.com.ar/buscador/?query=${q}`, Infobae: q=>`https://www.infobae.com/buscador/?s=${q}`, "Página|12": q=>`https://www.pagina12.com.ar/buscar/${q}`, Perfil: q=>`https://www.perfil.com/buscador?q=${q}`, "El Cronista": q=>`https://www.cronista.com/search/?q=${q}`, "Ámbito": q=>`https://www.ambito.com/buscar?q=${q}` },
@@ -218,275 +182,133 @@
       podcasts: { Spotify: q=>`https://open.spotify.com/search/${q}`, "Apple Podcasts": q=>`https://podcasts.apple.com/us/search?term=${q}`, "Google Podcasts": q=>`https://podcasts.google.com/search/${q}`, "Listen Notes": q=>`https://www.listennotes.com/search/?q=${q}`, iVoox: q=>`https://www.ivoox.com/escuchar-audios_${q}_1.html`, "Pocket Casts": q=>`https://play.pocketcasts.com/web/search?q=${q}` },
       torrents: { "1337x": q=>`https://1337x.to/search/${q}/1/`, "The Pirate Bay": q=>`https://thepiratebay.org/search.php?q=${q}`, RARBG: q=>`https://rargb.to/search?search=${q}`, YTS: q=>`https://yts.mx/browse-movies/${q}/all/all/0/latest/0/all`, EZTV: q=>`https://eztv.re/search/${q}` },
     };
-
     const CATEGORIES = [
-      { key: "web", label: "Web"},
-      { key: "ai", label: "IA"},
-      { key: "news", label: "Noticias"},
-      { key: "images", label: "Imágenes"},
-      { key: "videos", label: "Videos"},
-      { key: "gaming", label: "Gaming"},
-      { key: "shopping", label: "Compras"},
-      { key: "jobs", label: "Empleos"},
-      { key: "maps", label: "Mapas"},
-      { key: "dev", label: "Devs"},
-      { key: "social", label: "Social"},
-      { key: "academic", label: "Académico"},
-      { key: "reference", label: "Referencia"},
-      { key: "legal", label: "Legal"},
-      { key: "health", label: "Salud"},
-      { key: "real_estate", label: "Inmuebles"},
-      { key: "travel", label: "Viajes"},
-      { key: "recipes", label: "Recetas"},
-      { key: "finance", label: "Finanzas"},
-      { key: "books", label: "Libros"},
-      { key: "podcasts", label: "Podcasts"},
-      { key: "torrents", label: "Torrents"},
+      { key: "web", label: "Web"}, { key: "ai", label: "IA"}, { key: "news", label: "Noticias"}, { key: "images", label: "Imágenes"}, { key: "videos", label: "Videos"}, { key: "gaming", label: "Gaming"}, { key: "shopping", label: "Compras"}, { key: "jobs", label: "Empleos"}, { key: "maps", label: "Mapas"}, { key: "dev", label: "Devs"}, { key: "social", label: "Social"}, { key: "academic", label: "Académico"}, { key: "reference", label: "Referencia"}, { key: "legal", label: "Legal"}, { key: "health", label: "Salud"}, { key: "real_estate", label: "Inmuebles"}, { key: "travel", label: "Viajes"}, { key: "recipes", label: "Recetas"}, { key: "finance", label: "Finanzas"}, { key: "books", label: "Libros"}, { key: "podcasts", label: "Podcasts"}, { key: "torrents", label: "Torrents"},
     ];
+
+    const THEMES = {
+        'default': { name: 'Cyber Teal', colors: { '--bg1': '#0b1220', '--bg2': '#0f172a', '--acc1': '#14b8a6', '--acc2': '#06b6d4', '--acc3': '#8b5cf6' } },
+        'sunset': { name: 'Synthwave Sunset', colors: { '--bg1': '#1a0b2e', '--bg2': '#2a0f4a', '--acc1': '#ff4b8b', '--acc2': '#f782a9', '--acc3': '#f5d5e0' } },
+        'forest': { name: 'Bio-Luminiscent Forest', colors: { '--bg1': '#0a1a14', '--bg2': '#0f291e', '--acc1': '#34d399', '--acc2': '#a7f3d0', '--acc3': '#6ee7b7' } },
+        'nebula': { name: 'Cosmic Nebula', colors: { '--bg1': '#1e1b4b', '--bg2': '#312e81', '--acc1': '#a5b4fc', '--acc2': '#c7d2fe', '--acc3': '#e0e7ff' } },
+    };
 
     const openUrlSafe = (url) => window.open(url, "_blank", "noopener,noreferrer");
     const enc = (s) => encodeURIComponent(s.trim());
 
-    /** FX Canvas: partículas sutiles + parallax */
-    function useFxCanvas(){
-      useEffect(()=>{
-        const c = document.getElementById("fx-canvas");
-        const ctx = c.getContext("2d");
-        const DPR = Math.min(window.devicePixelRatio || 1, 2);
-        let w,h,raf,particles=[];
-        const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const isMobile = window.innerWidth < 768;
+    /** Hook para el Orbe Interactivo */
+    function useInteractiveOrb(isEnabled) {
+        const orbRef = useRef({
+            x: window.innerWidth / 2, y: window.innerHeight / 2,
+            vx: 0, vy: 0,
+            targetX: window.innerWidth / 2, targetY: window.innerHeight / 2,
+            radius: 40,
+            color: 'rgba(20, 184, 166, 0.2)'
+        }).current;
 
-        // Configuración optimizada para diferentes dispositivos
-        const particleCount = prefersReduced ? 40 : (isMobile ? 80 : 140);
-        
-        // Crear campo magnético para partículas
-        const magneticFields = [
-          { x: 0.3, y: 0.2, strength: 0.4 },
-          { x: 0.7, y: 0.8, strength: 0.5 },
-          { x: 0.2, y: 0.7, strength: 0.3 }
-        ];
+        useEffect(() => {
+            if (!isEnabled) return;
+            const canvas = document.getElementById('orb-canvas');
+            const ctx = canvas.getContext('2d');
+            const DPR = window.devicePixelRatio || 1;
+            let raf;
 
-        const resize=()=>{
-          w = c.width = innerWidth*DPR; 
-          h = c.height = innerHeight*DPR;
-          c.style.width = innerWidth+"px"; 
-          c.style.height = innerHeight+"px";
-          
-          // Crear partículas con propiedades físicas
-          particles = Array.from({length: particleCount}, ()=>({
-            x: Math.random()*w, 
-            y: Math.random()*h, 
-            r: Math.random()*2.5+0.4, 
-            a: Math.random()*Math.PI*2, 
-            s: Math.random()*0.8+0.1,
-            vx: 0,
-            vy: 0,
-            friction: 0.95,
-            color: `hsla(${Math.floor(Math.random() * 60 + 160)}, 70%, 60%, ${Math.random()*0.2+0.05})`
-          }));
-        };
-        
-        const applyMagneticField = (p) => {
-          magneticFields.forEach(field => {
-            const dx = field.x * w - p.x;
-            const dy = field.y * h - p.y;
-            const distance = Math.sqrt(dx*dx + dy*dy);
-            
-            if(distance < 200) {
-              const force = (200 - distance) / 200 * field.strength * 0.1;
-              p.vx += dx/distance * force;
-              p.vy += dy/distance * force;
+            const resize = () => {
+                canvas.width = window.innerWidth * DPR;
+                canvas.height = window.innerHeight * DPR;
+                canvas.style.width = `${window.innerWidth}px`;
+                canvas.style.height = `${window.innerHeight}px`;
+            };
+            resize();
+
+            const onMouseMove = (e) => {
+                orbRef.targetX = e.clientX * DPR;
+                orbRef.targetY = e.clientY * DPR;
+            };
+            window.addEventListener('mousemove', onMouseMove);
+
+            const draw = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const dx = orbRef.targetX - orbRef.x;
+                const dy = orbRef.targetY - orbRef.y;
+                
+                orbRef.vx += dx * 0.03;
+                orbRef.vy += dy * 0.03;
+
+                orbRef.vx *= 0.92;
+                orbRef.vy *= 0.92;
+
+                orbRef.x += orbRef.vx;
+                orbRef.y += orbRef.vy;
+
+                const speed = Math.sqrt(orbRef.vx * orbRef.vx + orbRef.vy * orbRef.vy);
+                const dynamicRadius = 40 + speed * 1.5;
+                const hue = 170 + speed * 2;
+                
+                const gradient = ctx.createRadialGradient(orbRef.x, orbRef.y, dynamicRadius * 0.1, orbRef.x, orbRef.y, dynamicRadius);
+                gradient.addColorStop(0, `hsla(${hue}, 80%, 60%, 0.3)`);
+                gradient.addColorStop(1, `hsla(${hue}, 80%, 60%, 0)`);
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(orbRef.x, orbRef.y, dynamicRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                raf = requestAnimationFrame(draw);
+            };
+            draw();
+
+            window.addEventListener('resize', resize);
+            return () => {
+                cancelAnimationFrame(raf);
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('resize', resize);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            };
+        }, [isEnabled]);
+    }
+
+    /** Hook para efectos de sonido */
+    const useSound = (isSoundEnabled) => {
+        const synth = useRef(null);
+        const gain = useRef(null);
+
+        useEffect(() => {
+            if (isSoundEnabled && !synth.current) {
+                synth.current = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'fmsine' },
+                    envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.2 },
+                });
+                gain.current = new Tone.Gain(0.3).toDestination();
+                synth.current.connect(gain.current);
             }
-          });
-        };
+        }, [isSoundEnabled]);
 
-        const draw=()=>{
-          ctx.clearRect(0,0,w,h);
-          
-          particles.forEach(p=>{
-            // Aplicar campos magnéticos
-            applyMagneticField(p);
-            
-            // Movimiento natural
-            p.x += p.vx + Math.cos(p.a)*p.s;
-            p.y += p.vy + Math.sin(p.a)*p.s;
-            
-            // Reducir velocidad con fricción
-            p.vx *= p.friction;
-            p.vy *= p.friction;
-            
-            // Rebotar en bordes
-            if(p.x<0) p.x=w; 
-            if(p.x>w) p.x=0; 
-            if(p.y<0) p.y=h; 
-            if(p.y>h) p.y=0;
-            
-            // Dibujar partícula
-            ctx.beginPath(); 
-            ctx.arc(p.x,p.y,p.r,0,Math.PI*2); 
-            ctx.fillStyle = p.color;
-            ctx.fill();
-          });
-          
-          raf = requestAnimationFrame(draw);
-        };
-        
-        resize(); 
-        draw();
-        addEventListener("resize", resize);
-        return ()=>{ 
-          cancelAnimationFrame(raf); 
-          removeEventListener("resize", resize); 
-        };
-      },[]);
-    }
-    
-    /** Sistema de partículas para efecto de rastro */
-    function useParticleTrails() {
-      useEffect(() => {
-        const container = document.getElementById('particle-trails');
-        let particles = [];
-        let mouseX = 0;
-        let mouseY = 0;
-        let mouseActive = false;
-        
-        const onMouseMove = (e) => {
-          mouseX = e.clientX;
-          mouseY = e.clientY;
-          mouseActive = true;
-        };
-        
-        const onMouseLeave = () => {
-          mouseActive = false;
-        };
-        
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseleave', onMouseLeave);
-        
-        const colors = ['#14b8a6', '#06b6d4', '#8b5cf6', '#f59e0b', '#ef4444'];
-        
-        const createParticle = () => {
-          if (!mouseActive) return;
-          
-          const particle = document.createElement('div');
-          particle.className = 'particle-trail';
-          particle.style.left = `${mouseX}px`;
-          particle.style.top = `${mouseY}px`;
-          particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-          particle.style.transform = `scale(${Math.random() * 0.8 + 0.2})`;
-          
-          container.appendChild(particle);
-          particles.push({
-            element: particle,
-            x: mouseX,
-            y: mouseY,
-            vx: (Math.random() - 0.5) * 4,
-            vy: (Math.random() - 0.5) * 4,
-            life: 60
-          });
-        };
-        
-        const updateParticles = () => {
-          for (let i = particles.length - 1; i >= 0; i--) {
-            const p = particles[i];
-            p.life--;
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += 0.1; // gravedad
-            
-            p.element.style.left = `${p.x}px`;
-            p.element.style.top = `${p.y}px`;
-            p.element.style.opacity = p.life / 60;
-            
-            if (p.life <= 0) {
-              p.element.remove();
-              particles.splice(i, 1);
+        const playSound = useCallback((type) => {
+            if (!isSoundEnabled || !synth.current) return;
+            Tone.start();
+            switch (type) {
+                case 'click':
+                    synth.current.triggerAttackRelease('C5', '8n', Tone.now());
+                    break;
+                case 'search':
+                    synth.current.triggerAttackRelease(['C4', 'G4', 'C5'], '8n', Tone.now());
+                    break;
+                case 'toggle':
+                    synth.current.triggerAttackRelease('E5', '16n', Tone.now());
+                    break;
+                case 'clear':
+                    synth.current.triggerAttackRelease('A4', '16n', Tone.now());
+                    break;
             }
-          }
-          
-          requestAnimationFrame(updateParticles);
-        };
-        
-        setInterval(createParticle, 30);
-        updateParticles();
-        
-        return () => {
-          window.removeEventListener('mousemove', onMouseMove);
-          window.removeEventListener('mouseleave', onMouseLeave);
-          particles.forEach(p => p.element.remove());
-        };
-      }, []);
-    }
+        }, [isSoundEnabled]);
 
-    /** Confetti mejorado */
-    function burstConfetti(ms=1200){
-      const c = document.createElement("canvas");
-      Object.assign(c.style,{position:"fixed",inset:0,zIndex:60,pointerEvents:"none"});
-      document.body.appendChild(c);
-      const ctx=c.getContext("2d");
-      const DPR=Math.min(devicePixelRatio||1,2);
-      let w=c.width=innerWidth*DPR,h=c.height=innerHeight*DPR;
-      c.style.width=innerWidth+"px"; c.style.height=innerHeight+"px";
-      const colors=["#14b8a6","#06b6d4","#8b5cf6","#f59e0b","#ef4444","#10b981","#f472b6","#8b5cf6"];
-      const N=200;
-      const parts=Array.from({length:N},(_,i)=>({
-        x:w/2,y:h*.25, 
-        vx:(Math.random()-0.5)*8, 
-        vy:(Math.random()*-8-6), 
-        g:0.22, 
-        r:Math.random()*8+4, 
-        c:colors[i%colors.length], 
-        a:1, 
-        rot:Math.random()*Math.PI,
-        shape: Math.random() > 0.7 ? 'circle' : Math.random() > 0.5 ? 'rect' : 'star'
-      }));
-      let t=0, raf;
-      
-      const drawShape = (p) => {
-        ctx.save(); 
-        ctx.translate(p.x, p.y); 
-        ctx.rotate(p.rot);
-        ctx.fillStyle = p.c; 
-        
-        if(p.shape === 'circle') {
-          ctx.beginPath();
-          ctx.arc(0, 0, p.r/2, 0, Math.PI*2);
-          ctx.fill();
-        } 
-        else if(p.shape === 'rect') {
-          ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r);
-        } 
-        else { // star
-          ctx.beginPath();
-          for(let i = 0; i < 5; i++) {
-            const angle = i * Math.PI * 0.4;
-            ctx.lineTo(
-              Math.cos(angle) * p.r/2, 
-              Math.sin(angle) * p.r/2
-            );
-          }
-          ctx.closePath();
-          ctx.fill();
-        }
-        
-        ctx.restore();
-      };
-      
-      const step=()=>{
-        ctx.clearRect(0,0,w,h);
-        parts.forEach(p=>{
-          p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.a-=.006; p.rot+=.1;
-          ctx.globalAlpha=Math.max(p.a,0);
-          drawShape(p);
-        });
-        ctx.globalAlpha=1;
-        if(t<ms){ t+=16; raf=requestAnimationFrame(step);} else { cancelAnimationFrame(raf); c.remove(); }
-      };
-      step();
-    }
+        return playSound;
+    };
 
-    function ConfirmModal({ isOpen, onClose, onConfirm, title, children }){
+
+    function ConfirmModal({ isOpen, onClose, onConfirm, title, children, playSound }){
       if(!isOpen) return null;
       return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose} role="dialog" aria-modal="true">
@@ -497,33 +319,102 @@
             </div>
             <div className="mt-4 text-gray-300 text-sm">{children}</div>
             <div className="mt-6 flex justify-end gap-3">
-              <button onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-600 hover:bg-gray-500 t-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-gray-500">Cancelar</button>
-              <button onClick={onConfirm} className="px-4 py-2 rounded-md text-sm font-medium bg-yellow-600 hover:bg-yellow-500 t-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-500">Continuar</button>
+              <button onClick={() => { playSound('click'); onClose(); }} className="px-4 py-2 rounded-md text-sm font-medium bg-gray-600 hover:bg-gray-500 t-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-gray-500">Cancelar</button>
+              <button onClick={() => { playSound('search'); onConfirm(); }} className="px-4 py-2 rounded-md text-sm font-medium bg-yellow-600 hover:bg-yellow-500 t-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-500">Continuar</button>
             </div>
           </div>
         </div>
       );
     }
+    
+    function SettingsPanel({ settings, setSettings, playSound, isOpen, onClose }) {
+        if (!isOpen) return null;
+
+        const handleThemeChange = (themeKey) => {
+            playSound('click');
+            setSettings(s => ({ ...s, theme: themeKey }));
+        };
+        
+        return (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+                <div className="bg-gray-800/80 rounded-xl shadow-2xl p-6 w-full max-w-md text-white border border-gray-700 fade-in" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-bold text-gradient">Configuración</h3>
+                        <button onClick={onClose} className="p-1 rounded-full hover:bg-white/10"><Icon name="x" className="h-5 w-5"/></button>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <label htmlFor="fx-toggle">Efectos Visuales</label>
+                            <button onClick={() => { playSound('toggle'); setSettings(s => ({ ...s, fxEnabled: !s.fxEnabled })); }} className={`btn px-3 py-1.5 rounded-full text-xs font-semibold border t-all ${settings.fxEnabled ? "bg-teal-600/70 border-teal-400/40" : "bg-gray-700/70 border-gray-600/70"}`}>
+                                {settings.fxEnabled ? "ON" : "OFF"}
+                            </button>
+                        </div>
+                         <div className="flex items-center justify-between">
+                            <label htmlFor="sound-toggle">Efectos de Sonido</label>
+                            <button onClick={() => { playSound('toggle'); setSettings(s => ({ ...s, soundEnabled: !s.soundEnabled })); }} className={`btn px-3 py-1.5 rounded-full text-xs font-semibold border t-all ${settings.soundEnabled ? "bg-teal-600/70 border-teal-400/40" : "bg-gray-700/70 border-gray-600/70"}`}>
+                                {settings.soundEnabled ? "ON" : "OFF"}
+                            </button>
+                        </div>
+                        <div>
+                            <label className="block mb-2">Tema Visual</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {Object.entries(THEMES).map(([key, theme]) => (
+                                    <button key={key} onClick={() => handleThemeChange(key)} className={`p-2 rounded-md text-sm border-2 ${settings.theme === key ? 'border-teal-400' : 'border-gray-600'}`}>
+                                        {theme.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
 
     function SmartSearchApp(){
-      useFxCanvas();
-      useParticleTrails();
-
       const [query,setQuery] = useState("");
       const [category,setCategory] = useState("web");
       const [recents,setRecents] = useState([]);
       const [isCopied,setIsCopied] = useState(false);
       const [isConfirmModalOpen,setConfirmModalOpen] = useState(false);
-      const [fxEnabled,setFxEnabled] = useState(true);
-      const inputRef = useRef(null);
+      const [isInputFocused, setIsInputFocused] = useState(false);
+      const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+      
+      const [settings, setSettings] = useState(() => {
+          try {
+            const saved = localStorage.getItem("smartsearch:settings");
+            return saved ? JSON.parse(saved) : { fxEnabled: true, soundEnabled: true, theme: 'default' };
+          } catch {
+            return { fxEnabled: true, soundEnabled: true, theme: 'default' };
+          }
+      });
 
-      // Estado inicial (localStorage)
+      const inputRef = useRef(null);
+      
+      useInteractiveOrb(settings.fxEnabled);
+      const playSound = useSound(settings.soundEnabled);
+
+      useEffect(() => {
+        localStorage.setItem("smartsearch:settings", JSON.stringify(settings));
+        // Apply theme
+        const root = document.documentElement;
+        const themeColors = THEMES[settings.theme].colors;
+        for (const [key, value] of Object.entries(themeColors)) {
+            root.style.setProperty(key, value);
+            // For transparent versions used in background
+            if (key === '--acc1' || key === '--acc2') {
+                root.style.setProperty(`${key}-t`, value + '20');
+            }
+        }
+      }, [settings]);
+
       useEffect(()=>{
         setQuery(localStorage.getItem("smartsearch:lastQuery")||"");
         setCategory(localStorage.getItem("smartsearch:lastCat")||"web");
         try{
-          const saved = JSON.parse(localStorage.getItem("smartsearch:recents")||"[]");
-          if(Array.isArray(saved)) setRecents(saved.slice(0,18));
+          const savedRecents = JSON.parse(localStorage.getItem("smartsearch:recents")||"[]");
+          if(Array.isArray(savedRecents)) setRecents(savedRecents.slice(0,18));
         }catch{ setRecents([]); }
       },[]);
       useEffect(()=>{ localStorage.setItem("smartsearch:lastQuery", query); },[query]);
@@ -544,6 +435,7 @@
       };
 
       const makeRipple = (e)=>{
+        if (!settings.fxEnabled) return;
         const btn = e.currentTarget;
         const r = document.createElement("span");
         r.className="ripple";
@@ -553,6 +445,7 @@
 
       const handleOpen = (engineName) => (e) => {
         if(!hasQuery) return;
+        playSound('search');
         const fn = categoryEngines[engineName];
         if(!fn) return;
         makeRipple(e);
@@ -565,62 +458,47 @@
         engineNames.forEach(n=> openUrlSafe(categoryEngines[n](enc(query))) );
         addQueryToRecents();
         setConfirmModalOpen(false);
-        if(fxEnabled) burstConfetti(1300);
+        if(settings.fxEnabled) burstConfetti(1300);
       };
 
-      // Atajos de teclado
       useEffect(()=>{
         const onKey = (e)=>{
           const isMac = navigator.platform.toUpperCase().includes("MAC");
           if((isMac? e.metaKey: e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); inputRef.current?.focus(); inputRef.current?.select(); }
-          if(e.key==="Escape"){ if(query) setQuery(""); }
-          if(e.key==="Enter" && document.activeElement===inputRef.current){ const first = engineNames[0]; if(first) openUrlSafe(categoryEngines[first](enc(query))), addQueryToRecents(); }
+          if(e.key==="Escape"){ if(isSettingsOpen) setIsSettingsOpen(false); else if(query) setQuery(""); }
+          if(e.key==="Enter" && document.activeElement===inputRef.current){ const first = engineNames[0]; if(first) { playSound('search'); openUrlSafe(categoryEngines[first](enc(query))); addQueryToRecents(); }}
         };
         window.addEventListener("keydown", onKey);
         return ()=> window.removeEventListener("keydown", onKey);
-      },[engineNames, categoryEngines, query]);
+      },[engineNames, categoryEngines, query, isSettingsOpen, playSound]);
 
       const copyQuery = ()=>{
         if(!query||!navigator.clipboard) return;
+        playSound('click');
         navigator.clipboard.writeText(query).then(()=>{
           setIsCopied(true); setTimeout(()=>setIsCopied(false), 1600);
         }).catch(()=>{});
       };
 
       const searchOperators = [
-        { op: '"frase exacta"', desc: 'Busca la frase de manera literal.' },
-        { op: '-palabra', desc: 'Excluye una palabra.' },
-        { op: 'palabra OR palabra', desc: 'Una u otra (o ambas).' },
-        { op: 'site:dominio.com', desc: 'Limita a un dominio.' },
-        { op: 'filetype:pdf', desc: 'Filtra por tipo de archivo.' },
-        { op: 'intitle:palabra', desc: 'En el título.' },
-        { op: 'inurl:palabra', desc: 'En la URL.' },
-        { op: 'intext:palabra', desc: 'En el cuerpo del texto.' },
-        { op: 'before:AAAA-MM-DD', desc: 'Antes de una fecha.' },
-        { op: 'after:AAAA-MM-DD', desc: 'Después de una fecha.' },
-        { op: '$10..$100', desc: 'Rango de números/precio.' },
-        { op: 'palabra AROUND(n) palabra', desc: 'Cercanía entre términos.' },
+        { op: '"frase exacta"', desc: 'Busca la frase de manera literal.' }, { op: '-palabra', desc: 'Excluye una palabra.' }, { op: 'palabra OR palabra', desc: 'Una u otra (o ambas).' }, { op: 'site:dominio.com', desc: 'Limita a un dominio.' }, { op: 'filetype:pdf', desc: 'Filtra por tipo de archivo.' }, { op: 'intitle:palabra', desc: 'En el título.' }, { op: 'inurl:palabra', desc: 'En la URL.' }, { op: 'intext:palabra', desc: 'En el cuerpo del texto.' }, { op: 'before:AAAA-MM-DD', desc: 'Antes de una fecha.' }, { op: 'after:AAAA-MM-DD', desc: 'Después de una fecha.' }, { op: '$10..$100', desc: 'Rango de números/precio.' }, { op: 'palabra AROUND(n) palabra', desc: 'Cercanía entre términos.' },
       ];
 
       return (
-        <div className="p-4">
+        <div className="p-4 relative">
+          <button onClick={() => { playSound('click'); setIsSettingsOpen(true); }} className="btn mag absolute top-4 right-4 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 border border-gray-700 t-all" title="Configuración">
+            <Icon name="settings" className="h-5 w-5 text-gray-300"/>
+          </button>
+
           <div className="max-w-6xl mx-auto space-y-6 fade-in">
             <header className="text-center space-y-2 floating">
               <h1 className="text-4xl sm:text-6xl font-extrabold shimmer">Buscador Inteligente Definitivo</h1>
-              <p className="text-gray-400">Tu centro de búsqueda para toda la web — versión turbo con animaciones.</p>
+              <p className="text-gray-400">Tu centro de búsqueda para toda la web — versión <span className="text-gradient font-bold">Quantum</span>.</p>
             </header>
 
-            {/* Panel principal con borde gradiente animado */}
             <div className="agb rounded-2xl">
               <main className="bg-gray-800/60 rounded-2xl p-5 sm:p-7 backdrop-blur t-all">
-                {/* Barra de acciones */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">Efectos</span>
-                    <button onClick={()=>setFxEnabled(x=>!x)} className={"btn mag px-3 py-1.5 rounded-full text-xs font-semibold border t-all "+(fxEnabled?"bg-teal-600/70 border-teal-400/40":"bg-gray-700/70 border-gray-600/70")}>
-                      {fxEnabled? "ON":"OFF"}
-                    </button>
-                  </div>
                   <div className="text-xs text-gray-400">Motores en categoría: <span className="text-gradient font-semibold">{engineNames.length}</span></div>
                   <div className="flex-1"></div>
                   <div className="hidden sm:flex items-center text-xs text-gray-400 gap-1">
@@ -628,47 +506,44 @@
                   </div>
                 </div>
 
-                {/* Entrada de búsqueda */}
                 <div className="relative mb-2" role="search">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-80 pointer-events-none">
                     <Icon name="search" className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    ref={inputRef}
-                    id="query"
-                    value={query}
+                    ref={inputRef} id="query" value={query}
                     onChange={(e)=>setQuery(e.target.value)}
-                    placeholder="Escribe tu búsqueda aquí…"
-                    autoFocus
-                    autoComplete="off"
-                    className="w-full px-4 py-3 pl-12 pr-28 rounded-lg bg-gray-900/90 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-4 focus:ring-[var(--ring)] focus:border-teal-500 t-all"
+                    onFocus={() => setIsInputFocused(true)}
+                    onBlur={() => setIsInputFocused(false)}
+                    placeholder="Escribe tu búsqueda aquí…" autoFocus autoComplete="off"
+                    className={`w-full px-4 py-3 pl-12 pr-28 rounded-lg bg-gray-900/90 text-gray-100 border-2 border-gray-700 focus:outline-none focus:ring-4 focus:ring-[var(--ring)] focus:border-teal-500 t-all ${isInputFocused && settings.fxEnabled ? 'input-breathing' : ''}`}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                     <button onClick={copyQuery} title="Copiar búsqueda" className="btn p-1.5 rounded-full hover:bg-white/10 disabled:opacity-50 t-all" disabled={!hasQuery || isCopied}>
                       {isCopied? <Icon name="check" className="h-4 w-4 text-teal-400"/> : <Icon name="clipboardCopy" className="h-4 w-4 text-gray-300"/>}
                     </button>
                     {hasQuery && (
-                      <button onClick={()=>setQuery("")} title="Limpiar (Esc)" className="btn p-1.5 rounded-full hover:bg-white/10 t-all">
+                      <button onClick={()=>{ setQuery(""); playSound('clear'); }} title="Limpiar (Esc)" className="btn p-1.5 rounded-full hover:bg-white/10 t-all">
                         <Icon name="x" className="h-5 w-5 text-gray-300" />
                       </button>
                     )}
                   </div>
                 </div>
 
-                {/* Selector de categoría */}
                 <div className="flex items-center gap-2 flex-wrap mb-4">
                   {CATEGORIES.map(c=>(
                     <button 
                       key={c.key} 
-                      onClick={()=>setCategory(c.key)} 
-                      className={`btn text-xs px-3 py-1.5 rounded-full border t-all glow-border ${category===c.key? "bg-teal-600/70 border-teal-400/40":"bg-gray-700/50 border-gray-600/70 hover:bg-gray-700/80"}`}
+                      onClick={()=>{ setCategory(c.key); playSound('click'); }} 
+                      title={c.label}
+                      className={`btn text-xs px-3 py-1.5 rounded-full border t-all flex items-center gap-2 ${category===c.key? "bg-teal-600/70 border-teal-400/40":"bg-gray-700/50 border-gray-600/70 hover:bg-gray-700/80"}`}
                     >
+                      <Icon name={c.key} className="h-3.5 w-3.5" />
                       {c.label}
                     </button>
                   ))}
                 </div>
 
-                {/* Grid de motores */}
                 <div className="border-t border-gray-700 pt-5 min-h-[200px]">
                   {!hasQuery ? (
                     <div className="text-center text-gray-500 flex flex-col items-center justify-center h-full pt-4 fade-in">
@@ -681,9 +556,7 @@
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                         {engineNames.map((name, index)=>(
                           <button 
-                            key={name} 
-                            onClick={handleOpen(name)} 
-                            title={`Buscar en ${name}`}
+                            key={name} onClick={handleOpen(name)} title={`Buscar en ${name}`}
                             style={{animationDelay: `${index * 30}ms`}}
                             className="engine-item card btn mag relative bg-gray-800/60 text-gray-200 border border-gray-700 rounded-lg p-3 hover:bg-teal-600/80 hover:text-white hover:border-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 t-all text-sm font-medium active:scale-[.98] flex items-center justify-between gap-2 card-glow"
                           >
@@ -692,7 +565,7 @@
                           </button>
                         ))}
                       </div>
-                      <button onClick={handleSearchAll} className="search-all-btn btn w-full mt-4 text-white font-bold rounded-lg p-3 hover:from-teal-500 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 t-all text-sm active:scale-[.98] flex items-center justify-center gap-2">
+                      <button onClick={handleSearchAll} className="search-all-btn btn w-full mt-4 text-white font-bold rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-500 t-all text-sm active:scale-[.98] flex items-center justify-center gap-2">
                         Buscar en todos ({engineNames.length})
                       </button>
                     </div>
@@ -703,50 +576,41 @@
                   <div className="border-t border-gray-700 pt-4">
                     <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
                       <div className="inline-flex items-center gap-1.5 font-medium"><Icon name="history" className="h-3.5 w-3.5"/> Búsquedas Recientes</div>
-                      <button className="inline-flex items-center gap-1 hover:text-red-400 t-all" onClick={()=>{ localStorage.removeItem("smartsearch:recents"); setRecents([]); }} title="Borrar historial">
+                      <button className="inline-flex items-center gap-1 hover:text-red-400 t-all" onClick={()=>{ playSound('clear'); localStorage.removeItem("smartsearch:recents"); setRecents([]); }} title="Borrar historial">
                         <Icon name="trash2" className="h-3.5 w-3.5"/> Limpiar
                       </button>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {recents.map((q)=>(
-                        <button key={q} className="text-xs bg-gray-800/70 border border-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-700 t-all" onClick={()=>setQuery(q)} title={q}>
+                        <button key={q} className="text-xs bg-gray-800/70 border border-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-700 t-all" onClick={()=>{ setQuery(q); playSound('click'); }} title={q}>
                           {q}
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
-
-                <details className="text-sm text-gray-400 mt-4 group">
-                  <summary className="cursor-pointer text-teal-400 hover:text-teal-300 t-all inline-flex items-center gap-1 font-medium">
-                    <Icon name="info" className="h-4 w-4"/> Guía de Operadores de Búsqueda
-                  </summary>
-                  <div className="bg-gray-900/60 p-4 mt-2 rounded-md border border-gray-700 text-xs fade-in">
-                    <p className="mb-4 font-bold text-gray-300">Refina resultados como un pro.</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                      {searchOperators.map(({op,desc})=>(
-                        <div key={op} className="fade-in">
-                          <code className="text-teal-300 bg-gray-700/70 px-1.5 py-0.5 rounded">{op}</code>
-                          <p className="text-gray-400 mt-1">{desc}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </details>
               </main>
             </div>
           </div>
 
-          {/* Modal de confirmación */}
           <ConfirmModal
             isOpen={isConfirmModalOpen}
             onClose={()=>setConfirmModalOpen(false)}
             onConfirm={executeSearchAll}
             title="Confirmar Búsqueda Múltiple"
+            playSound={playSound}
           >
             <p>Esto abrirá <strong className="text-gradient">{engineNames.length}</strong> pestañas nuevas en tu navegador.</p>
             <p className="mt-2">¿Estás seguro de que quieres continuar?</p>
           </ConfirmModal>
+
+          <SettingsPanel
+            isOpen={isSettingsOpen}
+            onClose={() => { playSound('click'); setIsSettingsOpen(false); }}
+            settings={settings}
+            setSettings={setSettings}
+            playSound={playSound}
+          />
         </div>
       );
     }
